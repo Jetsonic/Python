@@ -4,67 +4,67 @@ import numpy as np
 
 
 def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
-		swarmsize=1000, pem=0.2, wmax=1.2, wmin=0.1, c1=2, c2=2, X=0.73, maxiter=1000,
+		swarmsize=1000, pem=0.2, wmax=1.2, wmin=0.5, c1=2, c2=2, X=0.73, maxiter=1000,
 		minstep=1e-8, minfunc=1e-8, debug=False):
 	"""
-	Perform a particle swarm optimization (PSO)
+    Perform a particle swarm optimization (PSO)
 
-	Parameters
-	==========
-	func : function
-		The function to be minimized
-	lb : array
-		The lower bounds of the design variable(s)
-	ub : array
-		The upper bounds of the design variable(s)
+    Parameters
+    ==========
+    func : function
+        The function to be minimized
+    lb : array
+        The lower bounds of the design variable(s)
+    ub : array
+        The upper bounds of the design variable(s)
 
-	Optional
-	========
-	ieqcons : list
-		A list of functions of length n such that ieqcons[j](x,*args) >= 0.0 in
-		a successfully optimized problem (Default: [])
-	f_ieqcons : function
-		Returns a 1-D array in which each element must be greater or equal
-		to 0.0 in a successfully optimized problem. If f_ieqcons is specified,
-		ieqcons is ignored (Default: None)
-	args : tuple
-		Additional arguments passed to objective and constraint functions
-		(Default: empty tuple)
-	kwargs : dict
-		Additional keyword arguments passed to objective and constraint
-		functions (Default: empty dict)
-	swarmsize : int
-		The number of particles in the swarm (Default: 100)
-	Chi(X) : constriction factor which is used to control and constrict
-		velocities (Default: 1)
-	omega(w) : scalar
-		Particle velocity scaling factor (Default: 0.5)
-	phip(c1) : scalar
-		Scaling factor to search away from the particle's best known position
-		(Default: 0.5)
-	phig(c2) : scalar
-		Scaling factor to search away from the swarm's best known position
-		(Default: 0.5)
-	maxiter : int
-		The maximum number of iterations for the swarm to search (Default: 100)
-	minstep : scalar
-		The minimum stepsize of swarm's best position before the search
-		terminates (Default: 1e-8)
-	minfunc : scalar
-		The minimum change of swarm's best objective value before the search
-		terminates (Default: 1e-8)
-	debug : boolean
-		If True, progress statements will be displayed every iteration
-		(Default: False)
+    Optional
+    ========
+    ieqcons : list
+        A list of functions of length n such that ieqcons[j](x,*args) >= 0.0 in
+        a successfully optimized problem (Default: [])
+    f_ieqcons : function
+        Returns a 1-D array in which each element must be greater or equal
+        to 0.0 in a successfully optimized problem. If f_ieqcons is specified,
+        ieqcons is ignored (Default: None)
+    args : tuple
+        Additional arguments passed to objective and constraint functions
+        (Default: empty tuple)
+    kwargs : dict
+        Additional keyword arguments passed to objective and constraint
+        functions (Default: empty dict)
+    swarmsize : int
+        The number of particles in the swarm (Default: 100)
+    Chi(X) : constriction factor which is used to control and constrict
+        velocities (Default: 1)
+    omega(w) : scalar
+        Particle velocity scaling factor (Default: 0.5)
+    phip(c1) : scalar
+        Scaling factor to search away from the particle's best known position
+        (Default: 0.5)
+    phig(c2) : scalar
+        Scaling factor to search away from the swarm's best known position
+        (Default: 0.5)
+    maxiter : int
+        The maximum number of iterations for the swarm to search (Default: 100)
+    minstep : scalar
+        The minimum stepsize of swarm's best position before the search
+        terminates (Default: 1e-8)
+    minfunc : scalar
+        The minimum change of swarm's best objective value before the search
+        terminates (Default: 1e-8)
+    debug : boolean
+        If True, progress statements will be displayed every iteration
+        (Default: False)
 
-	Returns
-	=======
-	g : array
-		The swarm's best known position (optimal design)
-	f : scalar
-		The objective value at ``g``
+    Returns
+    =======
+    g : array
+        The swarm's best known position (optimal design)
+    f : scalar
+        The objective value at ``g``
 
-	"""
+    """
 
 	assert len(lb) == len(ub), 'Lower- and upper-bounds must be the same length'
 	assert hasattr(func, '__call__'), 'Invalid function handle'
@@ -72,7 +72,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 	ub = np.array(ub)
 	assert np.all(ub > lb), 'All upper-bound values must be greater than lower-bound values'
 
-	vhigh = np.abs(ub - lb)
+	vhigh = 0.2 * np.abs(ub - lb)
 	vlow = -vhigh
 
 	# Check for constraint function(s) #########################################
@@ -107,7 +107,8 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 	fg = 1e100  # artificial best swarm position starting value
 	for i in range(S):
 		# Initialize the particle's position
-		x[i, :] = lb + x[i, :] * (ub - lb)
+		# x[i, :] = -ub + ((ub - (-ub)) * np.random.rand(D))
+		x[i, :] = lb + x[i, :] * np.random.rand(D) * (ub - lb)
 
 		# Initialize the particle's best known position
 		p[i, :] = x[i, :]
@@ -125,6 +126,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 		if fp[i] < fg and is_feasible(p[i, :]):
 			fg = fp[i]
 			g = p[i, :].copy()
+			print('Initial best fitness value:', fg)
 
 		# Initialize the particle's velocity
 		v[i, :] = vlow + np.random.rand(D) * (vhigh - vlow)
@@ -132,14 +134,13 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 	# Iterate until termination criterion met ##################################
 	it = 1
 	while it <= maxiter:
-		print("Itetation Number:", it)
+		print("Iteration Number:", it)
 		rp = np.random.uniform(size=(S, D))
 		rg = np.random.uniform(size=(S, D))
 		for i in range(S):
 
 			# Update the particle's velocity
-			v[i, :] = X * ((wmax - it * (wmax - wmin) / maxiter) * v[i, :] + c1 * rp[i, :] * (p[i, :] - x[i, :]) + \
-						   c2 * rg[i, :] * (g - x[i, :]))
+			v[i, :] = X * ((wmax - it * (wmax - wmin) / maxiter) * v[i, :] + c1 * rp[i, :] * (p[i, :] - x[i, :]) + c2 * rg[i, :] * (g - x[i, :]))
 
 			# Update the particle's position, correcting lower and upper bound
 			# violations, then update the objective function value
@@ -149,13 +150,14 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 			mark2 = x[i, :] > ub
 			x[i, mark1] = lb[mark1]
 			x[i, mark2] = ub[mark2]
-			ft[i] = obj(x[i, :])
 			fx = obj(x[i, :])
+			ft[i] = fx
 
 			# Compare particle's best position (if constraints are satisfied)
 			if fx < fp[i] and is_feasible(x[i, :]):
 				p[i, :] = x[i, :].copy()
 				fp[i] = fx
+				print("current swarm best fitness value:", fp[i])
 
 				# Compare swarm's best position to current particle's position
 				# (Can only get here if constraints are satisfied)
@@ -163,27 +165,21 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 					if debug:
 						print('New best for swarm at iteration {:}: {:} {:}'.format(it, x[i, :], fx))
 
-					tmp = x[i, :].copy()
-					g = tmp.copy()
+					g = x[i, :].copy()
 					fg = fx
-					#stepsize = np.sqrt(np.sum((g - tmp) ** 2))
-					#if np.abs(fg - fx) <= minfunc:
-					#	print('Stopping search: Swarm best objective change less than {:}'.format(minfunc))
-					#	return tmp, fx
-					#elif stepsize <= minstep:
-					#	print('Stopping search: Swarm best position change less than {:}'.format(minstep))
-					#	return tmp, fx
-					#else:
-					#	g = tmp.copy()
-					#	fg = fx
-		print('Best after iteration {:}: {:}'.format(it, fg))
+
+		print('Current global best after iteration {:}: {:}'.format(it, fg))
+
+		# Algorithm for EMPSO
+
 		sort_index = np.argsort(ft)
 		sort_index = np.flip(sort_index)
-		for i in range(int(len(ub) / 8)):
-			l = sort_index[i]
+
+		for k in range(50):
+			l = sort_index[k]
 			for d in range(len(ub)):
-				if np.random.rand(0, 1) < pem:
-					x[l][d] = g[d] + 0.1 * (ub[d]-lb[d]) * random.gauss(0, 1)
+				if np.random.rand() < pem:
+					x[l][d] = g[d] + 0.1 * (ub[d] - lb[d]) * np.random.randn()
 
 		if debug:
 			print('Best after iteration {:}: {:}'.format(it, fg))
