@@ -19,22 +19,25 @@ import bisect
     H-A-V data's are is interpolated for known storage volume to return corresponding
     elevation and surface area.
 """
-df = pd.read_excel(r'pso_data1.xlsx')
-Start = df['Date'][0]
-End = df['Date'][df.index[-1]]
-df['Year'] = pd.DatetimeIndex(df['Date']).year
-Fyear = df['Year'][0]
-Lyear = df['Year'][df.index[-1]]
+Inflow = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Inflow')  # here if pso_data1.xlsx(1978-1980) replaced by pso_data.xlsx the code will take input for 47 years(1968-2014)
+Start = Inflow['Date'][0]
+End = Inflow['Date'][Inflow.index[-1]]
+Inflow['Year'] = pd.DatetimeIndex(Inflow['Date']).year
+Fyear = Inflow['Year'][0]
+Lyear = Inflow['Year'][Inflow.index[-1]]
 Tyear = Lyear - Fyear + 1
-I3 = df['Pachuwarghat'] + df['Local Inflow at Sunkoshi III']
+I3 = Inflow['Pachuwarghat'] + Inflow['Local Inflow at Sunkoshi III']
 I3 = I3.tolist()
-l2 = df['Local Inflow at Sunkoshi II'].tolist()
-l1 = df['Sangutar'] + df['Rabuwa Bazar'] + df['Local Inflow at Sunkoshi I']
-l1_ = df['Sangutar'] + df['Local Inflow at Sunkoshi I']
+l2 = Inflow['Local Inflow at Sunkoshi II'].tolist()
+l1 = Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
+l1_ = Inflow['Sangutar'] + Inflow['Local Inflow at Sunkoshi I']
+l1_ = l1_.tolist()
 l1 = l1.tolist()
-Is1 = df['Khurkot'] + df['Sangutar'] + df['Rabuwa Bazar'] + df['Local Inflow at Sunkoshi I']
-Is2 = df['Khurkot']
-Dk = df['Rabuwa Bazar'].tolist()
+Is1 = Inflow['Khurkot'] + Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
+Is2 = Inflow['Khurkot']
+Dk = Inflow['Rabuwa Bazar'].tolist()
+Demand = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand ')
+Dmd = Demand['DEMAND']
 Ex1 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI1')
 Ex2 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI2')
 Ex3 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI3')

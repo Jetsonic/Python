@@ -1,11 +1,10 @@
 import random
-
 import numpy as np
 
 
 def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 		swarmsize=1000, pem=0.2, wmax=1.2, wmin=0.5, c1=2, c2=2, X=0.73, maxiter=1000,
-		minstep=1e-8, minfunc=1e-8, debug=False):
+		minstep=1e-8, minfunc=1e-8, debug=True):
 	"""
     Perform a particle swarm optimization (PSO)
 
@@ -72,7 +71,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 	ub = np.array(ub)
 	assert np.all(ub > lb), 'All upper-bound values must be greater than lower-bound values'
 
-	vhigh = 0.2 * np.abs(ub - lb)
+	vhigh = np.abs(ub - lb)
 	vlow = -vhigh
 
 	# Check for constraint function(s) #########################################
@@ -105,10 +104,11 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 	ft = np.zeros(S)  # fitness function values
 	g = []  # best swarm position
 	fg = 1e100  # artificial best swarm position starting value
+	iter_vs_swamp_vs_fitness = []
+	iter_vs_globalbest = []
 	for i in range(S):
 		# Initialize the particle's position
-		# x[i, :] = -ub + ((ub - (-ub)) * np.random.rand(D))
-		x[i, :] = lb + x[i, :] * np.random.rand(D) * (ub - lb)
+		x[i, :] = lb + x[i, :] * (ub - lb)
 
 		# Initialize the particle's best known position
 		p[i, :] = x[i, :]
@@ -158,6 +158,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 				p[i, :] = x[i, :].copy()
 				fp[i] = fx
 				print("current swarm best fitness value:", fp[i])
+				iter_vs_swamp_vs_fitness.append([it, i, fp[i]])
 
 				# Compare swarm's best position to current particle's position
 				# (Can only get here if constraints are satisfied)
@@ -165,21 +166,35 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 					if debug:
 						print('New best for swarm at iteration {:}: {:} {:}'.format(it, x[i, :], fx))
 
-					g = x[i, :].copy()
-					fg = fx
+					tmp = x[i, :].copy()
+					stepsize = np.sqrt(np.sum((g - tmp) ** 2))
+					if np.abs(fg - fx) <= minfunc:
+						print('Stopping search: Swarm best objective change less than {:}'.format(minfunc))
+						return tmp, fx, iter_vs_swamp_vs_fitness
+					elif stepsize <= minstep:
+						print('Stopping search: Swarm best position change less than {:}'.format(minstep))
+						return tmp, fx, iter_vs_swamp_vs_fitness
+					else:
+						g = tmp.copy()
+						fg = fx
+			# Algorithm for EMPSO
+
+			sort_index = np.argsort(ft)
+			sort_index = np.flip(sort_index)
+			for k in range(int(3 * S ** (1. / 3))):  # No of mutation swarms can be taken as 3 times cube root of swarm size.
+				l = sort_index[k]
+				for d in range(len(ub)):
+					if np.random.rand() < pem:
+						x[l][d] = g[d] + 0.1 * (ub[d] - lb[d]) * np.random.randn()
+					else:
+						x[l][d] = g[d]
+			mark1 = x[i, :] < lb
+			mark2 = x[i, :] > ub
+			x[i, mark1] = lb[mark1]
+			x[i, mark2] = ub[mark2]
 
 		print('Current global best after iteration {:}: {:}'.format(it, fg))
-
-		# Algorithm for EMPSO
-
-		sort_index = np.argsort(ft)
-		sort_index = np.flip(sort_index)
-
-		for k in range(50):
-			l = sort_index[k]
-			for d in range(len(ub)):
-				if np.random.rand() < pem:
-					x[l][d] = g[d] + 0.1 * (ub[d] - lb[d]) * np.random.randn()
+		iter_vs_globalbest.append([it, fg])
 
 		if debug:
 			print('Best after iteration {:}: {:}'.format(it, fg))
@@ -189,4 +204,4 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 
 	if not is_feasible(g):
 		print("However, the optimization couldn't find a feasible design. Sorry")
-	return g, fg
+	return g, fg, iter_vs_swamp_vs_fitness,iter_vs_globalbest
