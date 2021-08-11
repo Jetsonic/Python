@@ -57,7 +57,7 @@ C1 = 1
 C2 = 0.5
 X = 0.9
 pem = 0.3
-maxiter = 100
+maxiter = 500
 minstep = 1e-8
 minfunc = 1e-8
 
@@ -135,7 +135,6 @@ def listmaker(n):
 Tmonth = Tyear * 12
 Ovariables = 1
 T_O_V = Tmonth * Ovariables
-S3 = np.zeros(Tmonth + 1)
 lb = np.zeros(T_O_V)  # initial lower bounds for releases all values are zero
 ub = np.zeros(T_O_V)  # initial upper bounds for releases all values are zero
 
@@ -211,8 +210,8 @@ def Dry_energy_checkA(x):  # Annual dry energy check
 	z_dry = 0
 	z_wet = 0
 	dry_percentA = listmaker(int(Tmonth / 12))
-	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
 	H3 = Height3(x)
+	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
 	j = 0
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
@@ -231,8 +230,8 @@ def Dry_energy_checkT(x):  # Total dry energy check
 	z_dry = 0
 	z_wet = 0
 	dry_percentT = 0
-	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
 	H3 = Height3(x)
+	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
 	j = 0
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
@@ -244,7 +243,7 @@ def Dry_energy_checkT(x):  # Total dry energy check
 
 
 def dry_energy(z_dry, z_wet):
-	dry_percent_total = (z_dry / (z_dry + z_wet) * 100)
+	dry_percent_total = (z_dry / (z_dry + z_wet) * 100) if (z_dry + z_wet) != 0 else 0
 	return dry_percent_total
 
 
@@ -288,8 +287,8 @@ def mycons(x):
 
 # mass balance for sunkoshi 3
 def Storage3(x):
-	S3 = listmaker(Tmonth + 1)
-	O3 = listmaker(Tmonth)  # initial overflow all values are zero
+	S3 = np.zeros(Tmonth + 1)
+	O3 = np.zeros(Tmonth)  # initial overflow all values are zero
 	S3[0] = S3min  # taking initial condition as minimum storage
 	R3 = x
 	j = 0
@@ -345,9 +344,9 @@ def Storage_check(Si, Smin):
 
 # Energy output per month for Sunkoshi 3
 def E3(x):
-	e3 = listmaker(Tmonth)  # initial Energy all values are zero
-	R3 = (x * 10 ** 6) / seconds_per_month
+	e3 = np.zeros(Tmonth)  # initial Energy all values are zero
 	H3 = Height3(x)
+	R3 = (x * 10 ** 6) / seconds_per_month
 	for i in range(Tmonth):
 		e3[i] = g * ita * R3[i] * H3[i] / 1000
 	return e3
@@ -363,8 +362,8 @@ def E3(x):
 
 # Height for Sunkoshi-3
 def Height3(x):
-	S3, O3 = Storage3(x)
-	H3 = listmaker(Tmonth)  # initial Height all values are zero
+	H3 = np.zeros(Tmonth)  # initial Height all values are zero
+	S3 = Storage3(x)[0]
 	for i in range(Tmonth):
 		H3[i] = Interpolate(Ex3, S3[i], c='Elev')
 		H3[i] = H3[i] - S3_twl
@@ -412,6 +411,7 @@ print('The optimum releases for each stations are:')
 Release_Sunkoshi_3 = []
 Storage_Sunkoshi_3 = []
 Overflow_Sunkoshi_3 = []
+Dry_energy_percent_Annually_for_S3 = []
 Energy_Sunkoshi_3 = []
 Fitness_value = fopt
 Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total']
@@ -419,6 +419,7 @@ Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'm
 # Optimized Releases
 print("{:<7} {:<7} {:<25}".format('Year', 'Months', 'Release at S3'))
 j = -1
+month = 'error'
 for i in range(Tmonth):
 	if i % 12 == 0 or i == 0:
 		month = "Jan"
@@ -561,7 +562,7 @@ for i in range(Tmonth):
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('PSO_Outputs_Sunkoshi3(1985-2014)_final_maybe.xlsx')
+PSO_Outputs = pd.ExcelWriter('PSO_Outputs_Sunkoshi3(1985-2014).xlsx')
 
 Parameters = pd.DataFrame()
 Outputs = pd.DataFrame()

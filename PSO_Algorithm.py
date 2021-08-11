@@ -170,10 +170,10 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 					stepsize = np.sqrt(np.sum((g - tmp) ** 2))
 					if np.abs(fg - fx) <= minfunc:
 						print('Stopping search: Swarm best objective change less than {:}'.format(minfunc))
-						return tmp, fx, iter_vs_swamp_vs_fitness
+						return tmp, fx, iter_vs_swamp_vs_fitness, iter_vs_globalbest.append([it, fx])
 					elif stepsize <= minstep:
 						print('Stopping search: Swarm best position change less than {:}'.format(minstep))
-						return tmp, fx, iter_vs_swamp_vs_fitness
+						return tmp, fx, iter_vs_swamp_vs_fitness,iter_vs_globalbest.append([it, fx])
 					else:
 						g = tmp.copy()
 						fg = fx
