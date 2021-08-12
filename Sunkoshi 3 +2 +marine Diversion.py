@@ -570,10 +570,10 @@ def E2(x):
 
 # Energy output per month for Sunkoshi Marine Diversion
 def Em(x):
-	emd = listmaker(Tmonth)
+	emd = np.zeros(Tmonth)
 	Rm = (x[2*Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
 	for i in range(Tmonth):
-		emd[i] = g * ita_MD * Rm * Hm / 1000
+		emd[i] = g * ita_MD * Rm[i] * Hm / 1000
 	return emd
 
 
@@ -818,9 +818,9 @@ for i in range(Tmonth):
 		month = "Nov"
 	elif i % 12 == 11:
 		month = "Dec"
-		Dry_energy_percent_Annually_for_S3.append(Day_energy_percent_for_S3_Annually[i])
-		Dry_energy_percent_Annually_for_S2.append(Day_energy_percent_for_S2_Annually[i])
-		Dry_energy_percent_Annually_for_MD.append(Day_energy_percent_for_MD_Annually[i])
+		Dry_energy_percent_Annually_for_S3.append(Day_energy_percent_for_S3_Annually[j])
+		Dry_energy_percent_Annually_for_S2.append(Day_energy_percent_for_S2_Annually[j])
+		Dry_energy_percent_Annually_for_MD.append(Day_energy_percent_for_MD_Annually[j])
 
 	Energy_Sunkoshi_2.append(Energy_for_S2[i])
 	Energy_Sunkoshi_3.append(Energy_for_S3[i])
@@ -844,9 +844,9 @@ pso_data1 = pd.DataFrame(iter_vs_swamp_vs_fitness, columns=['Iteration', 'Swamp_
 pso_data2 = pd.DataFrame(iter_vs_globalbest, columns=['Iteration', 'Global_best_fitness'])
 Day_energy_percent_A = pd.DataFrame()
 
-Date = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').year.tolist()
-Date1 = pd.date_range(start='1985-1-1', end='2015-1-1', freq='Y').year.tolist()
-Month = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').month_name().tolist()
+Date = pd.date_range(start='1989-1-1', end='1990-1-1', freq='M').year.tolist()
+Date1 = pd.date_range(start='1989-1-1', end='1990-1-1', freq='Y').year.tolist()
+Month = pd.date_range(start='1989-1-1', end='1990-1-1', freq='M').month_name().tolist()
 
 Parameters['Parameters'] = Inputs
 Parameters['Values'] = [swarmsize, wmax, wmin, C1, C2, X, maxiter, minstep, minfunc, Fitness_value, Day_energy_percent_for_S3_total, Day_energy_percent_for_S2_total, Day_energy_percent_for_MD_total]
