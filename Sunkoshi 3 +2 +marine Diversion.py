@@ -1,9 +1,8 @@
 import time
 import pandas as pd
 import numpy as np
-
 from PSO_Algorithm import pso
-from data_pso import Interpolate, I3, l2, Ex2, Ex3, Tyear, Fyear
+from data_pso import Interpolate, I3, Dmd, l2, Ex2, Ex3, Tyear, Fyear
 
 start_time = time.time()
 
@@ -20,13 +19,13 @@ start_time = time.time()
      Make sure data_pso python file is in same folder as this file.
      Make sure PSO_Algorithm python file is in same folder as this file.
      Make sure data_pso.xlsx file is in same folder as this file.
-     Make sure Sunkoshi.xlsx file is in same folder as this file
+     Make sure Sunkoshi.xlsx file is in same folder as this file.
 
    Parameters
    ===============
     Following are preset initial parameters.
     They can be changed here.
-    
+
     swarmsize : int
         The number of particles in the swarm (Default: 100)
     Chi(X) : constriction factor which is used to control and constrict
@@ -56,40 +55,39 @@ start_time = time.time()
 swarmsize = 100
 wmax = 1
 wmin = 0.4
+pem = 0.3
 C1 = 1
 C2 = 0.5
 X = 0.9
-pem = 0.3
-maxiter = 500
+maxiter = 100
 minstep = 1e-8
 minfunc = 1e-8
-
-""""
+"""
   Introduction
   ============
    Objective Function for Multi-reservoir release optimization using PSO algorithm
 
-   Objective Function maximize E=∑(t=0)to(t=n)[P(R3 * H3 + R2 * H2)]
+   Objective Function maximize E=∑(t=0)to(t=n)[P(R3 * H3 + Qm * Hm +  R2 * H2)]
 
    Where,
      P = turbine efficiency * Density of water * Acceleration due to gravity
      R3 = Release from Sunkoshi-3 at time t
      H3 = Height of Sunkoshi-3 water head at time t
+     Qm = Release from Sunkoshi marine diversion at time t
+     Hm = Height of Sunkoshi marine diversion net water head at time t
      R2 = Release from Sunkoshi-2 at time t
      H2 = Height of Sunkoshi-2 water head at time t
-  
-  
-   Imports and Variables
+
+
+  Imports and Variables
   ======================
 
    Importing PSO algorithm from github id:https://github.com/tisimst/pyswarm
-   with many changes done to the algorithm.
 
    Also importing input variables from data_pso.py file
 
      I3     : Inflow at Sunkoshi-3 [Pachuwarghat(630)]
      L2     : Local inflow at Sunkoshi-2 [Khurkot(652)-Pachuwarghat(630)] # Some data's have -ve value which are taken as zero
-     L2     : Local inflow at Sunkoshi-1 
      Ex2    : H-V-A curve data for Sunkoshi-2
      Ex3    : H-V-A curve data for Sunkoshi-3
      S3max  : Maximum Sunkoshi-3 reservoir capacity in MCM
@@ -101,24 +99,30 @@ minfunc = 1e-8
      Ev3    : Evaporation loss from Sunkoshi-3 reservoir at time t is function of surface area
      Ev2    : Evaporation loss from Sunkoshi-2 reservoir at time t is function of surface area
      O3     : Overflow from Sunkoshi-3 reservoir at time t  
-     O2     : Overflow from Sunkoshi-2 reservoir at time t    
+     O2     : Overflow from Sunkoshi-2 reservoir at time t
      S3a    : Surface area water in Sunkoshi-3 reservoir at time t
      S2a    : Surface area water in Sunkoshi-2 reservoir at time t
      H3     : Water level in Sunkoshi-3 reservoir at time t 
      H2     : Water level in Sunkoshi-2 reservoir at time t
-     e3     : Energy output by Sunkoshi-3 at time t, is in KWh
-     e2     : Energy output by Sunkoshi-2 at time t, is in KWh
+     Hm		: Net water head in Sunkoshi marine diversion reservoir at time t
+     E3     : Energy output by Sunkoshi-3 at time t, is in KWh
+     E2     : Energy output by Sunkoshi-2 at time t, is in KWh
+     Em    : Energy output by Sunkoshi Marine Diversion at time t, is in KWh
      ev     : Evaporation in mm per month
 """
 
 ita_S3 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
 ita_S2 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-2 (from DOED report)
+ita_MD = 0.91  # Efficiency of Hydro-Electric plant of Marine Diversion (from DOED report)
 g = 9.810  # Acceleration due to gravity
 power3 = 683  # Installed Capacity in Megawatt of Sunkoshi-3 (from DOED report)
-power2 = 978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
+power2 = 1978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
+powerM = 28.62  # Installed Capacity in Megawatt of Sunkoshi-1 (from DOED report)
 seconds_per_month = 2.6298 * 10 ** 6
+Hm = 47.7  # Sunkoshi Marine Diversion project Net Head in m (from DOED report)
+R_MD_max = 176.2  # Maximum release from Marine Diversion is taken as design discharge 67 m3/s which when converted to MCM for a month equals to 67*seconds_per_month = 176.2 MCM
 S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at masl 695 m (from DOED report)
-S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 535 m (from DOED report)
+S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 560 m (from DOED report)
 S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
 S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
 S2_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
@@ -141,10 +145,12 @@ ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72) * 3
    optimized values to : Tmonth * Ovariables = T_O_V
      lb  : Lower bound for pso search for all T_O_V optimization values
      ub  : upper bound for pso search for all T_O_V optimization values
-     ub_S3  : for Sunkoshi-3 is taken as rated total turbine discharge 490 m3/s when converted to MCM for a month equals to 67*seconds_per_month = 1288 MCM
-     ub_S2  : for Sunkoshi-2 is taken as rated total turbine discharge 1048 m3/s when converted to MCM for a month equals to 67*seconds_per_month = 2756 MCM 
+     ub_S3  : for Sunkoshi-3 is taken as rated total turbine discharge 490 m3/s when converted to MCM for a month equals to 490 * seconds_per_month = 1288 MCM
+     ub_S2  : for Sunkoshi-2 is taken as rated total turbine discharge 1048 m3/s when converted to MCM for a month equals to 1048 * seconds_per_month = 2756 MCM
+     ub_MD  : for Marine Diversion is taken as design discharge 67 m3/s when converted to MCM for a month equals to 67 * seconds_per_month = 176.2 MCM 
      lb_S3  : for Sunkoshi-3 is taken as 0
-     lb_S2  : for Sunkoshi-2 is taken as 0    
+     lb_S3  : for Sunkoshi-3 is taken as 0
+     lb_MD  : for Sunkoshi-3 is taken as 0    
      cons: Stores constrains output can be used to check errors 
 """
 
@@ -155,11 +161,10 @@ def listmaker(n):
 
 
 Tmonth = Tyear * 12
-Ovariables = 2
+Ovariables = 3
 T_O_V = Tmonth * Ovariables
-lb = np.zeros(T_O_V)  # initial lower bounds for releases all values are zero
-ub = np.zeros(T_O_V)  # initial upper bounds for releases all values are zero
-
+lb = np.zeros(T_O_V)
+ub = np.zeros(T_O_V)
 # Giving upper and lower value for pso search function,here limit on irrigation and release output can de defined.
 """
   ub-lb Section
@@ -174,91 +179,126 @@ ub = np.zeros(T_O_V)  # initial upper bounds for releases all values are zero
 for i in range(0, T_O_V):
 	if i % 12 == 0 or i == 0:
 		month = "Jan"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 1:
 		month = "Feb"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[1]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 2:
 		month = "Mar"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[2]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 3:
 		month = "Apr"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[3]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 4:
 		month = "May"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[4]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 5:
 		month = "Jun"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[5]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 6:
 		month = "Jul"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[6]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 7:
 		month = "Aug"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[7]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 8:
 		month = "Sep"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[8]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 9:
 		month = "Oct"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[9]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 10:
 		month = "Nov"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[10]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 11:
 		month = "Dec"
-		ub[i] = 2756  # bonds for jan in Sunkoshi-2
-		lb[i] = 0  # bonds for jan in Sunkoshi-2
+		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[11]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # bonds for jan in Sunkoshi-3
-			lb[i] = 0  # bonds for jan in Sunkoshi-3
-
+			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			lb[i] = 0  # lowerbounds for Sunkoshi-3
 """
-  Objective function
+   Objective function
   ===================
  The algorithm Swarm searches for minimum value value.
   Two types of fitness function can be made with above objective function 
@@ -269,6 +309,7 @@ for i in range(0, T_O_V):
   ---------------------------
     Values that are indexed in range [0-Tmonth] are stored in R3 
     Values that are indexed in range [Tmonth-2*Tmonth] are stored in R2
+    Values that are indexed in range [2*Tmonth-3*Tmonth] are stored in Rm
 
   Here the value of releases are in MCM per month.
   Fitness function gives the total amount energy potential that can be generated when input parameters and optimized released are used as operation policy.
@@ -283,8 +324,9 @@ def fitness(x):
 	H2 = Height2(x)
 	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
 	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
 	for i in range(Tmonth):
-		z = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
+		z = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2) + 1 - (g * ita_MD * Rm[i] * Hm) / (1000 * power2)
 		F = F + z
 	return F
 
@@ -300,6 +342,7 @@ def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
 	dry_percentA = np.zeros(int(Tmonth / 12))
 	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
 	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
 	if c == 'S3':
 		R = R3
 		ita = ita_S3
@@ -308,44 +351,52 @@ def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
 		R = R2
 		ita = ita_S2
 		H = H2
-	u = 0
-	for y in range(Tmonth):
-		if y % 12 == 0 or y % 12 == 1 or y % 12 == 2 or y % 12 == 3 or y % 12 == 4 or y % 12 == 11:
-			z_dry += (g * ita * R[y] * H[y] / 1000)
-			if y % 12 == 11:
-				dry_percentA[u] = dry_energy(z_dry, z_wet)
-				u = u + 1
+	if c == 'MD':
+		R = Rm
+		ita = ita_MD
+		H = H + Hm
+	j = 0
+	for i in range(Tmonth):
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry += (g * ita * R[i] * H[i] / 1000)
+			if i % 12 == 11:
+				dry_percentA[j] = dry_energy(z_dry, z_wet)
+				j = j + 1
 				z_dry = 0
 				z_wet = 0
-		elif y % 12 == 5 or y % 12 == 6 or y % 12 == 7 or y % 12 == 8 or y % 12 == 9 or y % 12 == 10:
-			z_wet += (g * ita * R[y] * H[y] / 1000)
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet += (g * ita * R[i] * H[i] / 1000)
 	return dry_percentA
 
 
 def Dry_energy_checkT(x, c="v"):  # Total dry energy check
-	z_dry = 0.0
-	z_wet = 0.0
-	ita = 0.0
-	dry_percentT = 0
+	z_dry = 0
+	z_wet = 0
+	ita = 0
 	H = np.zeros(Tmonth)
 	R = np.zeros(Tmonth)
 	H3 = Height3(x)
 	H2 = Height2(x)
 	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
 	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
 	if c == 'S3':
 		R = R3
 		ita = ita_S3
-		H = H3.copy()
+		H = H3
 	elif c == 'S2':
 		R = R2
 		ita = ita_S2
 		H = H2
-	for t in range(Tmonth):
-		if t % 12 == 0 or t % 12 == 1 or t % 12 == 2 or t % 12 == 3 or t % 12 == 4 or t % 12 == 11:
-			z_dry += (g * ita * R[t] * H[t] / 1000)
-		elif t % 12 == 5 or t % 12 == 6 or t % 12 == 7 or t % 12 == 8 or t % 12 == 9 or t % 12 == 10:
-			z_wet += (g * ita * R[t] * H[t] / 1000)
+	elif c == 'MD':
+		R = Rm
+		ita = ita_MD
+		H = H + Hm
+	for i in range(Tmonth):
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry += (g * ita * R[i] * H[i] / 1000)
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet += (g * ita * R[i] * H[i] / 1000)
 	dry_percentT = dry_energy(z_dry, z_wet)
 	return dry_percentT
 
@@ -366,8 +417,8 @@ def dry_energy(z_dry, z_wet):
 
       For Sunkoshi-2 dam: 
       -------------------                                                                                                                        
-      S2(t) = S2(t-1) + R3(t-1) + O3(t-1) + l2(t-1) - {Qm(t-1) + R2(t-1) + Ev2(t-1)}
-
+      S2(t) = S2(t-1) + R3(t-1) + O3(t-1) + l2(t-1) - {Rm(t-1) + R2(t-1) + Ev2(t-1)}
+   
       Constrains
       ----------
        When storage volume obtained is lower than minimum storage capacity{i.e. S_min > S_(t)}
@@ -390,16 +441,13 @@ def dry_energy(z_dry, z_wet):
 
 # all constrains required
 def mycons(x):
-	# S3 = Storage3(x)[0]
-	# S2 = Storage2(x)[0]
-	# D_en_S3 = Dry_energy_checkT(x, c='s3')
-	# D_en_S2 = Dry_energy_checkT(x, c='s2')
+	# dry_percent = Dry_energy_check(x)
 	cons = []
 	# for i in range(int(Tmonth / 12)):
-	# a = [D_en_S3 - 30, D_en_S2 - 30]
+	# a = [dry_percent - 30]
 	# cons.extend(a)
 	# for n in range(Tmonth + 1):
-	#	a = [S3[n] - S3min, S2[n] - S2min]
+	#	a = [S3[n] - S3min]
 	#	cons.extend(a)
 	return cons
 
@@ -463,17 +511,18 @@ def Storage2(x):
 	S2[0] = S2min
 	R3 = x[:Tmonth]
 	R2 = x[Tmonth:Tmonth * 2]
+	Rm = x[2*Tmonth:Tmonth * 3]
 	j = 0
 	for i in range(Tmonth):
 		S2_temp = 0
 		S2_temp2 = 0
 		Ev2 = Evaporation2(S2[i], j)
-		S2_temp = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Ev2)
+		S2_temp = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2)
 		if S2_temp < S2min:
-			x[i + Tmonth] = np.random.rand() * (S2[i] + R3[i] + O3[i] + l2[i] - Ev2 - S3min)
-			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Ev2)
+			x[i + Tmonth] = np.random.rand() * (S2[i] + R3[i] + O3[i] + l2[i] - Rm[i] - Ev2 - S3min)
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2)
 		else:
-			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Ev2)
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2)
 		S2_temp2 = S2[i + 1]
 		if S2_temp2 > S2max:
 			if x[i + Tmonth] < ub[i + Tmonth]:
@@ -482,10 +531,10 @@ def Storage2(x):
 					O2[i] = x[i + Tmonth] - ub[i + Tmonth]
 					x[i + Tmonth] = ub[i + Tmonth]
 			else:
-				O2[i] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Ev2) - S2max
-			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Ev2 + O2[i])
+				O2[i] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2) - S2max
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
 		else:
-			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Ev2 + O2[i])
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
 		j += 1
 		if j == 12:
 			j = 0
@@ -500,8 +549,6 @@ def Storage2(x):
 
 
 # Energy output per month for Sunkoshi 3
-
-
 def E3(x):
 	e3 = np.zeros(Tmonth)
 	H3 = Height3(x)
@@ -519,6 +566,16 @@ def E2(x):
 	for i in range(Tmonth):
 		e2[i] = g * ita_S2 * R2[i] * H2[i] / 1000
 	return e2
+
+
+# Energy output per month for Sunkoshi Marine Diversion
+def Em(x):
+	emd = listmaker(Tmonth)
+	Rm = (x[2*Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
+	for i in range(Tmonth):
+		emd[i] = g * ita_MD * Rm * Hm / 1000
+	return emd
+
 
 """
   Height
@@ -569,7 +626,7 @@ def Evaporation3(a, b):
 
 def Evaporation2(a, b):
 	S2a = Interpolate(Ex2, a, c='SArea')
-	Eva = (ev[b] * S2a) / 10 ** 9
+	Eva = ev[b] * S2a / 10 ** 9
 	return Eva
 
 
@@ -597,19 +654,22 @@ print('The optimum releases for each stations are:')
 
 Release_Sunkoshi_2 = []
 Release_Sunkoshi_3 = []
+Release_Sunkoshi_MD = []
 Storage_Sunkoshi_2 = []
 Storage_Sunkoshi_3 = []
 Overflow_Sunkoshi_2 = []
 Overflow_Sunkoshi_3 = []
 Dry_energy_percent_Annually_for_S3 = []
 Dry_energy_percent_Annually_for_S2 = []
+Dry_energy_percent_Annually_for_MD = []
 Energy_Sunkoshi_2 = []
 Energy_Sunkoshi_3 = []
+Energy_Sunkoshi_MD = []
 Fitness_value = fopt
-Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S2']
+Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for MD']
 
 # Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25}".format('Year', 'Months', 'Release at S3', 'Release at S2'))
+print("{:<7} {:<7} {:<25} {:<25} {:<25}".format('Year', 'Months', 'Release at S3', 'Release at S2', 'Release at Smd'))
 j = -1
 month = "error"
 for i in range(Tmonth):
@@ -642,8 +702,9 @@ for i in range(Tmonth):
 
 	# print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
 	Release_Sunkoshi_2.append(xopt[i + Tmonth])
-	Release_Sunkoshi_3.append(xopt[i])
-	print("{:<7} {:<7} {:<25} {:<25}".format(Fyear + j, month, xopt[i], xopt[i + Tmonth]))
+	Release_Sunkoshi_3.append(xopt[i + 0])
+	Release_Sunkoshi_MD.append(xopt[2*Tmonth + i])
+	print("{:<7} {:<7} {:<25} {:<25} {:<25}".format(Fyear + j, month, xopt[i], xopt[i + Tmonth], xopt[i + 2 * Tmonth]))
 
 # Storage for optimized Releases
 print("{:<10} {:<10} {:<25} {:<25}".format('Year', 'Months', 'Storage at S3', 'Storage at S2'))
@@ -719,13 +780,16 @@ for i in range(Tmonth):
 	print("{:<10} {:<10} {:<25} {:<25}".format(Fyear + j, month, Overflow_for_S3[i], Overflow_for_S2[i]))
 
 # Energy generation for Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25}".format('Year', 'Months', 'Energy at S3', 'Energy at S2'))
+print("{:<7} {:<7} {:<25} {:<25} {:<25}".format('Year', 'Months', 'Energy at S3', 'Energy at S2', 'Energy at Smd'))
 Day_energy_percent_for_S3_total = Dry_energy_checkT(xopt, c='S3')
 Day_energy_percent_for_S2_total = Dry_energy_checkT(xopt, c='S2')
+Day_energy_percent_for_MD_total = Dry_energy_checkT(xopt, c='MD')
 Day_energy_percent_for_S3_Annually = Dry_energy_checkA(xopt, c='S3')
 Day_energy_percent_for_S2_Annually = Dry_energy_checkA(xopt, c='S2')
+Day_energy_percent_for_MD_Annually = Dry_energy_checkA(xopt, c='MD')
 Energy_for_S3 = E3(xopt)
 Energy_for_S2 = E2(xopt)
+Energy_for_MD = Em(xopt)
 j = -1
 for i in range(Tmonth):
 	if i % 12 == 0 or i == 0:
@@ -754,19 +818,21 @@ for i in range(Tmonth):
 		month = "Nov"
 	elif i % 12 == 11:
 		month = "Dec"
-		Dry_energy_percent_Annually_for_S3.append(Day_energy_percent_for_S3_Annually[j])
-		Dry_energy_percent_Annually_for_S2.append(Day_energy_percent_for_S2_Annually[j])
+		Dry_energy_percent_Annually_for_S3.append(Day_energy_percent_for_S3_Annually[i])
+		Dry_energy_percent_Annually_for_S2.append(Day_energy_percent_for_S2_Annually[i])
+		Dry_energy_percent_Annually_for_MD.append(Day_energy_percent_for_MD_Annually[i])
 
 	Energy_Sunkoshi_2.append(Energy_for_S2[i])
 	Energy_Sunkoshi_3.append(Energy_for_S3[i])
-	print("{:<7} {:<7} {:<25} {:<25}".format(Fyear + j, month, Energy_for_S3[i], Energy_for_S2[i]))
+	Energy_Sunkoshi_MD.append(Energy_for_MD[i])
+	print("{:<7} {:<7} {:<25} {:<25} {:<25}".format(Fyear + j, month, Energy_for_S3[i], Energy_for_S2[i], Energy_for_MD[i]))
 
 '''
  Writing to Excel
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('PSO_output_Sunkoshi_3+2_no_MD(1989-1990).xlsx')
+PSO_Outputs = pd.ExcelWriter('PSO_output_Sunkoshi_3+2+MD.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs = pd.DataFrame()
@@ -783,7 +849,7 @@ Date1 = pd.date_range(start='1985-1-1', end='2015-1-1', freq='Y').year.tolist()
 Month = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').month_name().tolist()
 
 Parameters['Parameters'] = Inputs
-Parameters['Values'] = [swarmsize, wmax, wmin, C1, C2, X, maxiter, minstep, minfunc, Fitness_value, Day_energy_percent_for_S3_total, Day_energy_percent_for_S2_total]
+Parameters['Values'] = [swarmsize, wmax, wmin, C1, C2, X, maxiter, minstep, minfunc, Fitness_value, Day_energy_percent_for_S3_total, Day_energy_percent_for_S2_total, Day_energy_percent_for_MD_total]
 
 Outputs['Date'] = Date
 Outputs['Month'] = Month
@@ -797,12 +863,14 @@ Outputs['Release_Sunkoshi_2'] = Release_Sunkoshi_2
 Outputs['Storage_Sunkoshi_2'] = Storage_Sunkoshi_2
 Outputs['Overflow_Sunkoshi_2'] = Overflow_Sunkoshi_2
 Outputs['Energy_Sunkoshi_2'] = Energy_Sunkoshi_2
-
+Outputs['Release_Sunkoshi_MD'] = Release_Sunkoshi_MD
+Outputs['Energy_Sunkoshi_MD'] = Energy_Sunkoshi_MD
 
 Release['Date'] = Date
 Release['Month'] = Month
 Release['Release_Sunkoshi_2'] = Release_Sunkoshi_2
 Release['Release_Sunkoshi_3'] = Release_Sunkoshi_3
+Release['Release_Sunkoshi_MD'] = Release_Sunkoshi_MD
 
 Storage['Date'] = Date
 Storage['Month'] = Month
@@ -818,20 +886,22 @@ Energy['Date'] = Date
 Energy['Month'] = Month
 Energy['Energy_Sunkoshi_2'] = Energy_Sunkoshi_2
 Energy['Energy_Sunkoshi_3'] = Energy_Sunkoshi_3
+Energy['Energy_Sunkoshi_MD'] = Energy_Sunkoshi_MD
 
 Day_energy_percent_A['Date'] = Date1
 Day_energy_percent_A['Dry Energy percent S3'] = Day_energy_percent_for_S3_Annually
 Day_energy_percent_A['Dry Energy percent S2'] = Day_energy_percent_for_S2_Annually
+Day_energy_percent_A['Dry Energy percent MD'] = Day_energy_percent_for_MD_Annually
 
-Parameters.to_excel(PSO_Outputs, sheet_name='Parameters', index=False)
+Parameters.to_excel(PSO_Outputs, sheet_name='Inputs', index=False)
 Outputs.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
 Release.to_excel(PSO_Outputs, sheet_name='Release', index=False)
 Storage.to_excel(PSO_Outputs, sheet_name='Storage', index=False)
 Overflow.to_excel(PSO_Outputs, sheet_name='Overflow', index=False)
 Energy.to_excel(PSO_Outputs, sheet_name='Energy', index=False)
+Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Energy', index=False)
 pso_data1.to_excel(PSO_Outputs,sheet_name='iter_vs_swamp_vs_fitness', index=False)
 pso_data2.to_excel(PSO_Outputs,sheet_name='iter_vs_Global_best_fitness', index=False)
-Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)
 
 PSO_Outputs.save()
 

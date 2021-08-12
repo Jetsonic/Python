@@ -178,7 +178,7 @@ def fitness(x):
 	H3 = Height3(x)
 	R3 = (x * 10 ** 6) / seconds_per_month
 	for i in range(Tmonth):
-		z = 1 - (g * ita * R3[i] * 10 ** 6 * H3[i]) / (1000 * seconds_per_month * power)
+		z = 1 - (g * ita * R3[i] * H3[i]) / (1000 * power)
 		F = F + z
 	return F
 
