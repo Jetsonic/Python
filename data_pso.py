@@ -36,8 +36,10 @@ l1 = l1.tolist()
 Is1 = Inflow['Khurkot'] + Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
 Is2 = Inflow['Khurkot']
 Dk = Inflow['Rabuwa Bazar'].tolist()
-Demand = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand ')
+Demand = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand')
 Dmd = Demand['DEMAND']
+Days_in_month = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Days_in_month')
+Days = Days_in_month['Days']
 Ex1 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI1')
 Ex2 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI2')
 Ex3 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI3')

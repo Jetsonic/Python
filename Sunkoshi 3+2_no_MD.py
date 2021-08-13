@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 
 from PSO_Algorithm import pso
-from data_pso import Interpolate, I3, l2, Ex2, Ex3, Tyear, Fyear
+from data_pso import Interpolate, I3, l2, Ex2, Ex3, Tyear, Fyear, Days
 
 start_time = time.time()
 
@@ -123,7 +123,7 @@ S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at ma
 S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
 S2_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
 S3_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
-ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72) * 30  # mean daily evapo-transpiration index of koshi basin
+ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
 """
    Environment
   ============
@@ -278,15 +278,32 @@ for i in range(0, T_O_V):
 
 # objective function maximizing power production
 def fitness(x):
-	F = 0
+	z = 0
+	z_dry = 0
+	z_wet = 0
 	H3 = Height3(x)
 	H2 = Height2(x)
 	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
 	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
 	for i in range(Tmonth):
-		z = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
-		F = F + z
-	return F
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
+		Total = 100 * z_dry - z_wet
+		z = z + Total
+	return z
+
+#def fitness(x):
+#	F = 0
+#	H3 = Height3(x)
+#	H2 = Height2(x)
+#	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
+#	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
+#	for i in range(Tmonth):
+#		z = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
+#		F = F + z
+#	return F
 
 
 def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
@@ -430,7 +447,7 @@ def Storage3(x):
 	for i in range(Tmonth):
 		S3_temp = 0
 		S3_temp2 = 0
-		Ev3 = Evaporation3(S3[i], j)
+		Ev3 = Evaporation3(S3[i], j, i)
 		S3_temp = I3[i] + S3[i] - (R3[i] + Ev3)
 		if S3_temp < S3min:
 			x[i] = np.random.rand() * (I3[i] + S3[i] - Ev3 - S3min)
@@ -467,7 +484,7 @@ def Storage2(x):
 	for i in range(Tmonth):
 		S2_temp = 0
 		S2_temp2 = 0
-		Ev2 = Evaporation2(S2[i], j)
+		Ev2 = Evaporation2(S2[i], j, i)
 		S2_temp = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Ev2)
 		if S2_temp < S2min:
 			x[i + Tmonth] = np.random.rand() * (S2[i] + R3[i] + O3[i] + l2[i] - Ev2 - S3min)
@@ -561,15 +578,15 @@ def Height2(x):
 """
 
 
-def Evaporation3(a, b):
+def Evaporation3(a, b, d):
 	S3a = Interpolate(Ex3, a, c='SArea')
-	Eva = (ev[b] * S3a) / 10 ** 9
+	Eva = (ev[b] * S3a) * Days[d] / 10 ** 9
 	return Eva
 
 
-def Evaporation2(a, b):
+def Evaporation2(a, b, d):
 	S2a = Interpolate(Ex2, a, c='SArea')
-	Eva = (ev[b] * S2a) / 10 ** 9
+	Eva = (ev[b] * S2a) * Days[d]  / 10 ** 9
 	return Eva
 
 

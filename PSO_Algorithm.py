@@ -165,7 +165,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 				if fx < fg:
 					if debug:
 						print('New best for swarm at iteration {:}: {:} {:}'.format(it, x[i, :], fx))
-						iter_vs_globalbest.append([it, fx])
+					iter_vs_globalbest.append([it, fx])
 
 					tmp = x[i, :].copy()
 					stepsize = np.sqrt(np.sum((g - tmp) ** 2))
@@ -174,7 +174,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 						return tmp, fx, iter_vs_swamp_vs_fitness, iter_vs_globalbest
 					elif stepsize <= minstep:
 						print('Stopping search: Swarm best position change less than {:}'.format(minstep))
-						return tmp, fx, iter_vs_swamp_vs_fitness,iter_vs_globalbest.append([it, fx])
+						return tmp, fx, iter_vs_swamp_vs_fitness, iter_vs_globalbest
 					else:
 						g = tmp.copy()
 						fg = fx
@@ -195,7 +195,6 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 			x[i, mark2] = ub[mark2]
 
 		print('Current global best after iteration {:}: {:}'.format(it, fg))
-		iter_vs_globalbest.append([it, fg])
 
 		if debug:
 			print('Best after iteration {:}: {:}'.format(it, fg))
@@ -205,4 +204,4 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 
 	if not is_feasible(g):
 		print("However, the optimization couldn't find a feasible design. Sorry")
-	return g, fg, iter_vs_swamp_vs_fitness,iter_vs_globalbest
+	return g, fg, iter_vs_swamp_vs_fitness, iter_vs_globalbest

@@ -2,7 +2,7 @@ import time
 import pandas as pd
 import numpy as np
 from PSO_Algorithm import pso
-from data_pso import Interpolate, I3, Dmd, l2, Ex2, Ex3, Tyear, Fyear
+from data_pso import Interpolate, I3, Dmd, l2, Ex2, Ex3, Tyear, Fyear, Days
 
 start_time = time.time()
 
@@ -52,14 +52,14 @@ start_time = time.time()
         (Default: False)
 
 """
-swarmsize = 100
+swarmsize = 10
 wmax = 1
 wmin = 0.4
 pem = 0.3
 C1 = 1
 C2 = 0.5
 X = 0.9
-maxiter = 100
+maxiter = 30
 minstep = 1e-8
 minfunc = 1e-8
 """
@@ -127,7 +127,7 @@ S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at ma
 S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
 S2_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
 S3_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
-ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72) * 30  # mean daily evapo-transpiration index of koshi basin
+ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
 """
    Environment
   ============
@@ -319,16 +319,35 @@ for i in range(0, T_O_V):
 
 # objective function maximizing power production
 def fitness(x):
-	F = 0
+	z = 0
+	z_dry = 0
+	z_wet = 0
 	H3 = Height3(x)
 	H2 = Height2(x)
 	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
 	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
 	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
 	for i in range(Tmonth):
-		z = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2) + 1 - (g * ita_MD * Rm[i] * Hm) / (1000 * power2)
-		F = F + z
-	return F
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2) - 1 + (g * ita_MD * Rm[i] * Hm) / (1000 * powerM)
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2) + 1 - (g * ita_MD * Rm[i] * Hm) / (1000 * powerM)
+		Total = 100 * z_dry - z_wet
+		z = z + Total
+	return z
+
+
+# def fitness(x):
+#	F = 0
+#	H3 = Height3(x)
+#	H2 = Height2(x)
+#	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
+#	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
+#	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
+#	for i in range(Tmonth):
+#		z = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2) + 1 - (g * ita_MD * Rm[i] * Hm) / (1000 * power2)
+#		F = F + z
+#	return F
 
 
 def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
@@ -478,7 +497,7 @@ def Storage3(x):
 	for i in range(Tmonth):
 		S3_temp = 0
 		S3_temp2 = 0
-		Ev3 = Evaporation3(S3[i], j)
+		Ev3 = Evaporation3(S3[i], j, i)
 		S3_temp = I3[i] + S3[i] - (R3[i] + Ev3)
 		if S3_temp < S3min:
 			x[i] = np.random.rand() * (I3[i] + S3[i] - Ev3 - S3min)
@@ -511,16 +530,20 @@ def Storage2(x):
 	S2[0] = S2min
 	R3 = x[:Tmonth]
 	R2 = x[Tmonth:Tmonth * 2]
-	Rm = x[2*Tmonth:Tmonth * 3]
+	Rm = x[2 * Tmonth:Tmonth * 3]
 	j = 0
 	for i in range(Tmonth):
 		S2_temp = 0
 		S2_temp2 = 0
-		Ev2 = Evaporation2(S2[i], j)
+		Ev2 = Evaporation2(S2[i], j, i)
 		S2_temp = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2)
 		if S2_temp < S2min:
 			x[i + Tmonth] = np.random.rand() * (S2[i] + R3[i] + O3[i] + l2[i] - Rm[i] - Ev2 - S3min)
 			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2)
+			if x[i + Tmonth] < 0:
+				x[2 * Tmonth + i] = x[2 * Tmonth + i] + x[i + Tmonth]
+				x[i + Tmonth] = 0
+				S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2)
 		else:
 			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2)
 		S2_temp2 = S2[i + 1]
@@ -571,7 +594,7 @@ def E2(x):
 # Energy output per month for Sunkoshi Marine Diversion
 def Em(x):
 	emd = np.zeros(Tmonth)
-	Rm = (x[2*Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
 	for i in range(Tmonth):
 		emd[i] = g * ita_MD * Rm[i] * Hm / 1000
 	return emd
@@ -618,15 +641,15 @@ def Height2(x):
 """
 
 
-def Evaporation3(a, b):
+def Evaporation3(a, b, d):
 	S3a = Interpolate(Ex3, a, c='SArea')
-	Eva = (ev[b] * S3a) / 10 ** 9
+	Eva = (ev[b] * S3a) * Days[d] / 10 ** 9
 	return Eva
 
 
-def Evaporation2(a, b):
+def Evaporation2(a, b, d):
 	S2a = Interpolate(Ex2, a, c='SArea')
-	Eva = ev[b] * S2a / 10 ** 9
+	Eva = ev[b] * S2a * Days[d] / 10 ** 9
 	return Eva
 
 
@@ -666,7 +689,7 @@ Energy_Sunkoshi_2 = []
 Energy_Sunkoshi_3 = []
 Energy_Sunkoshi_MD = []
 Fitness_value = fopt
-Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for MD']
+Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S2', 'Dry_energy percent Total for MD']
 
 # Optimized Releases
 print("{:<7} {:<7} {:<25} {:<25} {:<25}".format('Year', 'Months', 'Release at S3', 'Release at S2', 'Release at Smd'))
@@ -703,7 +726,7 @@ for i in range(Tmonth):
 	# print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
 	Release_Sunkoshi_2.append(xopt[i + Tmonth])
 	Release_Sunkoshi_3.append(xopt[i + 0])
-	Release_Sunkoshi_MD.append(xopt[2*Tmonth + i])
+	Release_Sunkoshi_MD.append(xopt[2 * Tmonth + i])
 	print("{:<7} {:<7} {:<25} {:<25} {:<25}".format(Fyear + j, month, xopt[i], xopt[i + Tmonth], xopt[i + 2 * Tmonth]))
 
 # Storage for optimized Releases
@@ -844,9 +867,9 @@ pso_data1 = pd.DataFrame(iter_vs_swamp_vs_fitness, columns=['Iteration', 'Swamp_
 pso_data2 = pd.DataFrame(iter_vs_globalbest, columns=['Iteration', 'Global_best_fitness'])
 Day_energy_percent_A = pd.DataFrame()
 
-Date = pd.date_range(start='1989-1-1', end='1990-1-1', freq='M').year.tolist()
-Date1 = pd.date_range(start='1989-1-1', end='1990-1-1', freq='Y').year.tolist()
-Month = pd.date_range(start='1989-1-1', end='1990-1-1', freq='M').month_name().tolist()
+Date = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').year.tolist()
+Date1 = pd.date_range(start='1985-1-1', end='2015-1-1', freq='Y').year.tolist()
+Month = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').month_name().tolist()
 
 Parameters['Parameters'] = Inputs
 Parameters['Values'] = [swarmsize, wmax, wmin, C1, C2, X, maxiter, minstep, minfunc, Fitness_value, Day_energy_percent_for_S3_total, Day_energy_percent_for_S2_total, Day_energy_percent_for_MD_total]
@@ -899,9 +922,9 @@ Release.to_excel(PSO_Outputs, sheet_name='Release', index=False)
 Storage.to_excel(PSO_Outputs, sheet_name='Storage', index=False)
 Overflow.to_excel(PSO_Outputs, sheet_name='Overflow', index=False)
 Energy.to_excel(PSO_Outputs, sheet_name='Energy', index=False)
-Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Energy', index=False)
-pso_data1.to_excel(PSO_Outputs,sheet_name='iter_vs_swamp_vs_fitness', index=False)
-pso_data2.to_excel(PSO_Outputs,sheet_name='iter_vs_Global_best_fitness', index=False)
+Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)
+pso_data1.to_excel(PSO_Outputs, sheet_name='iter_vs_swamp_vs_fitness', index=False)
+pso_data2.to_excel(PSO_Outputs, sheet_name='iter_vs_Global_best_fitness', index=False)
 
 PSO_Outputs.save()
 

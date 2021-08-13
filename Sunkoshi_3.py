@@ -57,12 +57,12 @@ C1 = 1
 C2 = 0.5
 X = 0.9
 pem = 0.3
-maxiter = 500
+maxiter = 700
 minstep = 1e-8
 minfunc = 1e-8
 
 from PSO_Algorithm import pso
-from data_pso import Interpolate, I3, Ex3, Tyear, Fyear
+from data_pso import Interpolate, I3, Ex3, Tyear, Fyear,Days
 
 """"
   Introduction
@@ -105,7 +105,7 @@ seconds_per_month = 2.6298 * 10 ** 6
 S3max = 1769.286774  # h = 700 m
 S3min = 769.457152  # h = 660 m
 S3_twl = 535
-ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72) * 30
+ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)
 """
    Environment
   ============
@@ -128,8 +128,8 @@ ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72) * 3
 
 
 def listmaker(n):
-    listofzeros = [0.0] * n
-    return listofzeros
+	listofzeros = [0.0] * n
+	return listofzeros
 
 
 Tmonth = Tyear * 12
@@ -150,8 +150,8 @@ ub = np.zeros(T_O_V)  # initial upper bounds for releases all values are zero
 """
 
 for i in range(0, T_O_V):
-    ub[i] = 1288  # bonds for jan in Sunkoshi-3
-    lb[i] = 0  # bonds for jan in Sunkoshi-3
+	ub[i] = 1288  # bonds for jan in Sunkoshi-3
+	lb[i] = 0  # bonds for jan in Sunkoshi-3
 
 """
   Objective function
@@ -173,31 +173,32 @@ for i in range(0, T_O_V):
 """
 
 
-def fitness(x):
-    F = 0
-    H3 = Height3(x)
-    R3 = (x * 10 ** 6) / seconds_per_month
-    for i in range(Tmonth):
-        z = 1 - (g * ita * R3[i] * H3[i]) / (1000 * power)
-        F = F + z
-    return F
-
-
-# objective function maximizing power production
-# def Fitnessfunc(x, *args):
-#    z = 0
-#    z_dry = 0
-#    z_wet = 0
+# def fitness(x):
+#    F = 0
+#    H3 = Height3(x)
 #    R3 = (x * 10 ** 6) / seconds_per_month
-#    H3 = Height3(x, *args)
 #    for i in range(Tmonth):
-#        if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-#            z_dry = (g * ita * R3[i] / 1000 * H3[i])
-#        elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-#            z_wet = (g * ita * R3[i] / 1000 * H3[i])
-#        Total = z_dry + z_wet
-#        z += Total
-#    return -z
+#        z = 1 - (g * ita * R3[i] * H3[i]) / (1000 * power)
+#        F = F + z
+#    return F
+
+
+def fitness(x):
+	z = 0
+	z_dry = 0
+	z_wet = 0
+	H3 = Height3(x)
+	R3 = (x * 10 ** 6) / seconds_per_month
+	for i in range(Tmonth):
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry = 1-(g * ita * R3[i] * H3[i] / 1000) / power
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet = 1-(g * ita * R3[i] * H3[i] / 1000) / power
+		Total = 100 * z_dry - z_wet
+		z = z + Total
+	return z
+
+
 """
   Minimum Dry Energy 
   ===================
@@ -207,44 +208,44 @@ def fitness(x):
 
 
 def Dry_energy_checkA(x):  # Annual dry energy check
-    z_dry = 0
-    z_wet = 0
-    dry_percentA = listmaker(int(Tmonth / 12))
-    H3 = Height3(x)
-    R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
-    j = 0
-    for i in range(Tmonth):
-        if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-            z_dry += (g * ita * R3[i] * H3[i] / 1000)
-            if i % 12 == 11:
-                dry_percentA[j] = dry_energy(z_dry, z_wet)
-                j = j + 1
-                z_dry = 0
-                z_wet = 0
-        elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-            z_wet += (g * ita * R3[i] * H3[i] / 1000)
-    return dry_percentA
+	z_dry = 0
+	z_wet = 0
+	dry_percentA = listmaker(int(Tmonth / 12))
+	H3 = Height3(x)
+	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
+	j = 0
+	for i in range(Tmonth):
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry += (g * ita * R3[i] * H3[i] / 1000)
+			if i % 12 == 11:
+				dry_percentA[j] = dry_energy(z_dry, z_wet)
+				j = j + 1
+				z_dry = 0
+				z_wet = 0
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet += (g * ita * R3[i] * H3[i] / 1000)
+	return dry_percentA
 
 
 def Dry_energy_checkT(x):  # Total dry energy check
-    z_dry = 0
-    z_wet = 0
-    dry_percentT = 0
-    H3 = Height3(x)
-    R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
-    j = 0
-    for i in range(Tmonth):
-        if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-            z_dry += (g * ita * R3[i] * H3[i] / 1000)
-        elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-            z_wet += (g * ita * R3[i] * H3[i] / 1000)
-    dry_percentT = dry_energy(z_dry, z_wet)
-    return dry_percentT
+	z_dry = 0
+	z_wet = 0
+	dry_percentT = 0
+	H3 = Height3(x)
+	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
+	j = 0
+	for i in range(Tmonth):
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry += (g * ita * R3[i] * H3[i] / 1000)
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet += (g * ita * R3[i] * H3[i] / 1000)
+	dry_percentT = dry_energy(z_dry, z_wet)
+	return dry_percentT
 
 
 def dry_energy(z_dry, z_wet):
-    dry_percent_total = (z_dry / (z_dry + z_wet) * 100) if (z_dry + z_wet) != 0 else 0
-    return dry_percent_total
+	dry_percent_total = (z_dry / (z_dry + z_wet) * 100) if (z_dry + z_wet) != 0 else 0
+	return dry_percent_total
 
 
 """                                                                                                                                                
@@ -280,59 +281,59 @@ def dry_energy(z_dry, z_wet):
 
 # all constrains required
 def mycons(x):
-    # dry_percent = Dry_energy_check(x)
-    cons = []
-    return cons
+	# dry_percent = Dry_energy_check(x)
+	cons = []
+	return cons
 
 
 # mass balance for sunkoshi 3
 def Storage3(x):
-    S3 = np.zeros(Tmonth + 1)
-    O3 = np.zeros(Tmonth)  # initial overflow all values are zero
-    S3[0] = S3min  # taking initial condition as minimum storage
-    R3 = x
-    j = 0
-    for i in range(Tmonth):
-        S3_temp = 0
-        S3_temp2 = 0
-        Ev3 = Evaporation3(S3[i], j)
-        S3_temp = I3[i] + S3[i] - (R3[i] + Ev3)
-        if S3_temp < S3min:
-            x[i] = np.random.rand() * (I3[i] + S3[i] - Ev3 - S3min)
-            S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3)
-        else:
-            S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3)
-        S3_temp2 = S3[i + 1]
-        if S3_temp2 > S3max:
-            if x[i] < ub[i]:
-                x[i] = x[i] + S3_temp2 - S3max
-                if x[i] > ub[i]:
-                    O3[i] = x[i]-ub[i]
-                    x[i] = ub[i]
-            else:
-                O3[i] = I3[i] + S3[i] - (R3[i] + Ev3) - S3max
-            S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
-        else:
-            S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
-        j += 1
-        if j == 12:
-            j = 0
-    return S3, O3
+	S3 = np.zeros(Tmonth + 1)
+	O3 = np.zeros(Tmonth)  # initial overflow all values are zero
+	S3[0] = S3min  # taking initial condition as minimum storage
+	R3 = x
+	j = 0
+	for i in range(Tmonth):
+		S3_temp = 0
+		S3_temp2 = 0
+		Ev3 = Evaporation3(S3[i], j, i)
+		S3_temp = I3[i] + S3[i] - (R3[i] + Ev3)
+		if S3_temp < S3min:
+			x[i] = np.random.rand() * (I3[i] + S3[i] - Ev3 - S3min)
+			S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3)
+		else:
+			S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3)
+		S3_temp2 = S3[i + 1]
+		if S3_temp2 > S3max:
+			if x[i] < ub[i]:
+				x[i] = x[i] + S3_temp2 - S3max
+				if x[i] > ub[i]:
+					O3[i] = x[i] - ub[i]
+					x[i] = ub[i]
+			else:
+				O3[i] = I3[i] + S3[i] - (R3[i] + Ev3) - S3max
+			S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
+		else:
+			S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
+		j += 1
+		if j == 12:
+			j = 0
+	return S3, O3
 
 
 def Overflow(Si, Smax):
-    if Si >= Smax:
-        return Si - Smax, Smax
-    else:
-        return 0, Si
+	if Si >= Smax:
+		return Si - Smax, Smax
+	else:
+		return 0, Si
 
 
 def Storage_check(Si, Smin):
-    if Si <= Smin:
-        n = Smin - Si
-        return Smin, n
-    if Si > Smin:
-        return Si, 0
+	if Si <= Smin:
+		n = Smin - Si
+		return Smin, n
+	if Si > Smin:
+		return Si, 0
 
 
 """
@@ -344,12 +345,12 @@ def Storage_check(Si, Smin):
 
 # Energy output per month for Sunkoshi 3
 def E3(x):
-    e3 = np.zeros(Tmonth)  # initial Energy all values are zero
-    H3 = Height3(x)
-    R3 = (x * 10 ** 6) / seconds_per_month
-    for i in range(Tmonth):
-        e3[i] = g * ita * R3[i] * H3[i] / 1000
-    return e3
+	e3 = np.zeros(Tmonth)  # initial Energy all values are zero
+	H3 = Height3(x)
+	R3 = (x * 10 ** 6) / seconds_per_month
+	for i in range(Tmonth):
+		e3[i] = g * ita * R3[i] * H3[i] / 1000
+	return e3
 
 
 """
@@ -362,12 +363,12 @@ def E3(x):
 
 # Height for Sunkoshi-3
 def Height3(x):
-    H3 = np.zeros(Tmonth)  # initial Height all values are zero
-    S3 = Storage3(x)[0]
-    for i in range(Tmonth):
-        H3[i] = Interpolate(Ex3, S3[i], c='Elev')
-        H3[i] = H3[i] - S3_twl
-    return H3
+	H3 = np.zeros(Tmonth)  # initial Height all values are zero
+	S3 = Storage3(x)[0]
+	for i in range(Tmonth):
+		H3[i] = Interpolate(Ex3, S3[i], c='Elev')
+		H3[i] = H3[i] - S3_twl
+	return H3
 
 
 """ 
@@ -383,10 +384,10 @@ def Height3(x):
 """
 
 
-def Evaporation3(a, b):
-    S3a = Interpolate(Ex3, a, c='SArea')
-    Eva = (ev[b] * S3a) / 10 ** 9
-    return Eva
+def Evaporation3(a, b, d):
+	S3a = Interpolate(Ex3, a, c='SArea')
+	Eva = (ev[b] * S3a) * Days[d] / 10 ** 9
+	return Eva
 
 
 # calling pso function in pso.py
@@ -421,141 +422,141 @@ print("{:<7} {:<7} {:<25}".format('Year', 'Months', 'Release at S3'))
 j = -1
 month = 'error'
 for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 150)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
+	if i % 12 == 0 or i == 0:
+		month = "Jan"
+		print('-' * 150)
+		j = j + 1
+	elif i % 12 == 1:
+		month = "Feb"
+	elif i % 12 == 2:
+		month = "Mar"
+	elif i % 12 == 3:
+		month = "Apr"
+	elif i % 12 == 4:
+		month = "May"
+	elif i % 12 == 5:
+		month = "Jun"
+	elif i % 12 == 6:
+		month = "Jul"
+	elif i % 12 == 7:
+		month = "Aug"
+	elif i % 12 == 8:
+		month = "Sep"
+	elif i % 12 == 9:
+		month = "Oct"
+	elif i % 12 == 10:
+		month = "Nov"
+	elif i % 12 == 11:
+		month = "Dec"
 
-    # print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
-    Release_Sunkoshi_3.append(xopt[i])
-    print("{:<7} {:<7} {:<25}".format(Fyear + j, month, xopt[i]))
+	# print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
+	Release_Sunkoshi_3.append(xopt[i])
+	print("{:<7} {:<7} {:<25}".format(Fyear + j, month, xopt[i]))
 
 # Storage for optimized Releases
 print("{:<10} {:<10} {:<25}".format('Year', 'Months', 'Storage at S3'))
 Storage_for_S3, Overflow_for_S3 = Storage3(xopt)
 j = -1
 for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 100)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
+	if i % 12 == 0 or i == 0:
+		month = "Jan"
+		print('-' * 100)
+		j = j + 1
+	elif i % 12 == 1:
+		month = "Feb"
+	elif i % 12 == 2:
+		month = "Mar"
+	elif i % 12 == 3:
+		month = "Apr"
+	elif i % 12 == 4:
+		month = "May"
+	elif i % 12 == 5:
+		month = "Jun"
+	elif i % 12 == 6:
+		month = "Jul"
+	elif i % 12 == 7:
+		month = "Aug"
+	elif i % 12 == 8:
+		month = "Sep"
+	elif i % 12 == 9:
+		month = "Oct"
+	elif i % 12 == 10:
+		month = "Nov"
+	elif i % 12 == 11:
+		month = "Dec"
 
-    Storage_Sunkoshi_3.append(Storage_for_S3[i])
+	Storage_Sunkoshi_3.append(Storage_for_S3[i])
 
-    print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Storage_for_S3[i]))
+	print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Storage_for_S3[i]))
 
 # Overflow for Optimized Releases
 print("{:<10} {:<10} {:<25}".format('Year', 'Months', 'Overflow at S3'))
 j = -1
 for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 100)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
+	if i % 12 == 0 or i == 0:
+		month = "Jan"
+		print('-' * 100)
+		j = j + 1
+	elif i % 12 == 1:
+		month = "Feb"
+	elif i % 12 == 2:
+		month = "Mar"
+	elif i % 12 == 3:
+		month = "Apr"
+	elif i % 12 == 4:
+		month = "May"
+	elif i % 12 == 5:
+		month = "Jun"
+	elif i % 12 == 6:
+		month = "Jul"
+	elif i % 12 == 7:
+		month = "Aug"
+	elif i % 12 == 8:
+		month = "Sep"
+	elif i % 12 == 9:
+		month = "Oct"
+	elif i % 12 == 10:
+		month = "Nov"
+	elif i % 12 == 11:
+		month = "Dec"
 
-    Overflow_Sunkoshi_3.append(Overflow_for_S3[i])
-    print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Overflow_for_S3[i]))
+	Overflow_Sunkoshi_3.append(Overflow_for_S3[i])
+	print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Overflow_for_S3[i]))
 
 # Energy generation for Optimized Releases
 print("{:<7} {:<7} {:<25}".format('Year', 'Months', 'Energy at S3'))
 Energy_for_S3 = E3(xopt)
 j = -1
 for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 150)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
-        Dry_energy_percent_Annually_for_S3.append(Day_energy_percent_Annually[j])
-    Energy_Sunkoshi_3.append(Energy_for_S3[i])
-    print("{:<7} {:<7} {:<25}".format(Fyear + j, month, Energy_for_S3[i]))
+	if i % 12 == 0 or i == 0:
+		month = "Jan"
+		print('-' * 150)
+		j = j + 1
+	elif i % 12 == 1:
+		month = "Feb"
+	elif i % 12 == 2:
+		month = "Mar"
+	elif i % 12 == 3:
+		month = "Apr"
+	elif i % 12 == 4:
+		month = "May"
+	elif i % 12 == 5:
+		month = "Jun"
+	elif i % 12 == 6:
+		month = "Jul"
+	elif i % 12 == 7:
+		month = "Aug"
+	elif i % 12 == 8:
+		month = "Sep"
+	elif i % 12 == 9:
+		month = "Oct"
+	elif i % 12 == 10:
+		month = "Nov"
+	elif i % 12 == 11:
+		month = "Dec"
+		Dry_energy_percent_Annually_for_S3.append(Day_energy_percent_Annually[j])
+	Energy_Sunkoshi_3.append(Energy_for_S3[i])
+	print("{:<7} {:<7} {:<25}".format(Fyear + j, month, Energy_for_S3[i]))
 
 '''
  Writing to Excel
@@ -614,8 +615,8 @@ Release.to_excel(PSO_Outputs, sheet_name='Release', index=False)
 Storage.to_excel(PSO_Outputs, sheet_name='Storage', index=False)
 Overflow.to_excel(PSO_Outputs, sheet_name='Overflow', index=False)
 Energy.to_excel(PSO_Outputs, sheet_name='Energy', index=False)
-pso_data1.to_excel(PSO_Outputs,sheet_name='iter_vs_swamp_vs_fitness', index=False)
-pso_data2.to_excel(PSO_Outputs,sheet_name='iter_vs_Global_best_fitness', index=False)
+pso_data1.to_excel(PSO_Outputs, sheet_name='iter_vs_swamp_vs_fitness', index=False)
+pso_data2.to_excel(PSO_Outputs, sheet_name='iter_vs_Global_best_fitness', index=False)
 Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)
 
 PSO_Outputs.save()
