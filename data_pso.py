@@ -27,15 +27,12 @@ Fyear = Inflow['Year'][0]
 Lyear = Inflow['Year'][Inflow.index[-1]]
 Tyear = Lyear - Fyear + 1
 I3 = Inflow['Pachuwarghat'] + Inflow['Local Inflow at Sunkoshi III']
-I3 = I3.tolist()
-l2 = Inflow['Local Inflow at Sunkoshi II'].tolist()
+l2 = Inflow['Local Inflow at Sunkoshi II']
 l1 = Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
 l1_ = Inflow['Sangutar'] + Inflow['Local Inflow at Sunkoshi I']
-l1_ = l1_.tolist()
-l1 = l1.tolist()
 Is1 = Inflow['Khurkot'] + Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
 Is2 = Inflow['Khurkot']
-Dk = Inflow['Rabuwa Bazar'].tolist()
+Dk = Inflow['Rabuwa Bazar']
 Demand = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand')
 Dmd = Demand['DEMAND']
 Days_in_month = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Days_in_month')

@@ -98,10 +98,10 @@ minfunc = 1e-8
 ita_S2 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-2 (from DOED report)
 g = 9.810  # Acceleration due to gravity
 power2 = 978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
-seconds_per_month = 2.6298 * 10 ** 6
 S2max = 1806.892334  # h = 535
 S2min = 776.999601  # h = 505
 S2_twl = 424.6
+S2_rated_discharge = 1048  # Sunkoshi-2 total rated discharge in m3/s(from DOED report)
 ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)
 """
    Environment
@@ -151,52 +151,52 @@ ub = np.zeros(T_O_V)  # initial upper bounds for releases all values are zero
 for i in range(0, T_O_V):
     if i % 12 == 0 or i == 0:
         month = "Jan"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 1:
         month = "Feb"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 2:
         month = "Mar"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 3:
         month = "Apr"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 4:
         month = "May"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 5:
         month = "Jun"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 6:
         month = "Jul"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 7:
         month = "Aug"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 8:
         month = "Sep"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 9:
         month = "Oct"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 10:
         month = "Nov"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
     elif i % 12 == 11:
         month = "Dec"
-        ub[i] = 2756  # bonds for jan in Sunkoshi-2
-        lb[i] = 0  # bonds for jan in Sunkoshi-2
+        ub[i] = S2_rated_discharge * Days[i] * 24 * 3600  # bonds for Sunkoshi-2
+        lb[i] = 0  # bonds for Sunkoshi-2
 
 """
   Objective function
@@ -222,7 +222,7 @@ def fitness(x):
     z_dry = 0
     z_wet = 0
     H2 = Height2(x)
-    R2 = (x * 10 ** 6) / seconds_per_month
+    R2 = (x * 10 ** 6) /  (Days * 24 * 3600)
     for i in range(Tmonth):
         if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
             z_dry = 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
@@ -286,7 +286,7 @@ def Dry_energy_checkA(x):  # Annual dry energy check
     z_wet = 0
     dry_percentA = listmaker(int(Tmonth / 12))
     H2 = Height2(x)
-    R2 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
+    R2 = (x * 10 ** 6) / (Days * 24 * 3600)  # Changing value of release from MCM to cms
     j = 0
     for i in range(Tmonth):
         if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
@@ -306,7 +306,7 @@ def Dry_energy_checkT(x):  # Total dry energy check
     z_wet = 0
     dry_percentT = 0
     H2 = Height2(x)
-    R2 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
+    R2 = (x * 10 ** 6) / (Days * 24 * 3600)  # Changing value of release from MCM to cms
     j = 0
     for i in range(Tmonth):
         if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
@@ -384,7 +384,7 @@ def Storage2(x):
 def E2(x):
     e2 = np.zeros(Tmonth)
     H2 = Height2(x)
-    R2 = (x * 10 ** 6) / seconds_per_month
+    R2 = (x * 10 ** 6) / (Days * 24 * 3600)
     for i in range(Tmonth):
         e2[i] = g * ita_S2 * R2[i] * H2[i] / 1000
     return e2
@@ -403,7 +403,7 @@ def Height2(x):
     H2 = np.zeros(Tmonth)
     S2 = Storage2(x)[0]
     for i in range(Tmonth):
-        H2[i] = Interpolate(Ex2, S2[i], c='Elev')
+        H2[i] = Interpolate(Ex2, (S2[i] + S2[i+1])/2, c='Elev')
         H2[i] = H2[i] - S2_twl
     return H2
 

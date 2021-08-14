@@ -118,15 +118,16 @@ g = 9.810  # Acceleration due to gravity
 power3 = 683  # Installed Capacity in Megawatt of Sunkoshi-3 (from DOED report)
 power2 = 1978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
 powerM = 28.62  # Installed Capacity in Megawatt of Sunkoshi-1 (from DOED report)
-seconds_per_month = 2.6298 * 10 ** 6
 Hm = 47.7  # Sunkoshi Marine Diversion project Net Head in m (from DOED report)
-R_MD_max = 176.2  # Maximum release from Marine Diversion is taken as design discharge 67 m3/s which when converted to MCM for a month equals to 67*seconds_per_month = 176.2 MCM
 S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at masl 695 m (from DOED report)
 S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 560 m (from DOED report)
 S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
 S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
 S2_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
 S3_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
+S3_rated_discharge = 490   # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
+S2_rated_discharge = 1048  # Sunkoshi-2 total rated discharge in m3/s(from DOED report)
+S_MD_Max_discharge = 67  # Maximum release from Marine Diversion is taken as design discharge 67 m3/s
 ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
 """
    Environment
@@ -175,127 +176,129 @@ ub = np.zeros(T_O_V)
 
    following code facilities this process such that these bounds can be given for each releases for each month. 
 """
-
+j = 0
 for i in range(0, T_O_V):
+	if j >= Tmonth:
+		j = 0
 	if i % 12 == 0 or i == 0:
 		month = "Jan"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
 		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 1:
 		month = "Feb"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[1]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 2:
 		month = "Mar"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[2]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 3:
 		month = "Apr"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[3]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 4:
 		month = "May"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[4]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 5:
 		month = "Jun"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[5]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 6:
 		month = "Jul"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[6]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 7:
 		month = "Aug"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[7]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 8:
 		month = "Sep"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[8]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 9:
 		month = "Oct"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[9]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 10:
 		month = "Nov"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[10]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 	elif i % 12 == 11:
 		month = "Dec"
-		ub[i] = R_MD_max  # upperbounds for Sunkoshi Marine Diversion
-		lb[i] = Dmd[11]  # lowerbounds for Sunkoshi Marine Diversion
+		ub[i] = S_MD_Max_discharge * Days[j] * 24 * 3600   # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
 		if i / 12 < (Tmonth * 2 / 12):
-			ub[i] = 2756  # upperbounds for Sunkoshi-2
+			ub[i] = S2_rated_discharge * Days[j] * 24 * 3600 # upperbounds for Sunkoshi-2
 			lb[i] = 0  # lowerbounds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = 1288  # upperbounds for Sunkoshi-3
+			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # upperbounds for Sunkoshi-3
 			lb[i] = 0  # lowerbounds for Sunkoshi-3
 """
    Objective function
@@ -324,9 +327,9 @@ def fitness(x):
 	z_wet = 0
 	H3 = Height3(x)
 	H2 = Height2(x)
-	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
-	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
-	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
 			z_dry = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2) - 1 + (g * ita_MD * Rm[i] * Hm) / (1000 * powerM)
@@ -359,9 +362,9 @@ def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
 	H3 = Height3(x)
 	H2 = Height2(x)
 	dry_percentA = np.zeros(int(Tmonth / 12))
-	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
-	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
-	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
 	if c == 'S3':
 		R = R3
 		ita = ita_S3
@@ -396,9 +399,9 @@ def Dry_energy_checkT(x, c="v"):  # Total dry energy check
 	R = np.zeros(Tmonth)
 	H3 = Height3(x)
 	H2 = Height2(x)
-	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
-	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
-	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
 	if c == 'S3':
 		R = R3
 		ita = ita_S3
@@ -575,7 +578,7 @@ def Storage2(x):
 def E3(x):
 	e3 = np.zeros(Tmonth)
 	H3 = Height3(x)
-	R3 = (x[:Tmonth] * 10 ** 6) / seconds_per_month
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
 		e3[i] = g * ita_S3 * R3[i] * H3[i] / 1000
 	return e3
@@ -585,7 +588,7 @@ def E3(x):
 def E2(x):
 	e2 = np.zeros(Tmonth)
 	H2 = Height2(x)
-	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / seconds_per_month
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
 		e2[i] = g * ita_S2 * R2[i] * H2[i] / 1000
 	return e2
@@ -594,7 +597,7 @@ def E2(x):
 # Energy output per month for Sunkoshi Marine Diversion
 def Em(x):
 	emd = np.zeros(Tmonth)
-	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / seconds_per_month
+	Rm = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
 		emd[i] = g * ita_MD * Rm[i] * Hm / 1000
 	return emd
@@ -613,7 +616,7 @@ def Height3(x):
 	H3 = np.zeros(Tmonth)
 	S3 = Storage3(x)[0]
 	for i in range(Tmonth):
-		H3[i] = Interpolate(Ex3, S3[i], c='Elev')
+		H3[i] = Interpolate(Ex3, (S3[i]+S3[i+1])/2, c='Elev')
 		H3[i] = H3[i] - S3_twl
 	return H3
 
@@ -623,7 +626,7 @@ def Height2(x):
 	H2 = np.zeros(Tmonth)
 	S2 = Storage2(x)[0]
 	for i in range(Tmonth):
-		H2[i] = Interpolate(Ex2, S2[i], c='Elev')
+		H2[i] = Interpolate(Ex2, (S2[i]+S2[i+1])/2, c='Elev')
 		H2[i] = H2[i] - S2_twl
 	return H2
 

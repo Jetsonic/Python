@@ -50,14 +50,14 @@ start_time = time.time()
         (Default: False)
 
 """
-swarmsize = 100
+swarmsize = 8
 wmax = 1
 wmin = 0.2
 C1 = 1
 C2 = 0.5
 X = 0.9
 pem = 0.3
-maxiter = 700
+maxiter = 10
 minstep = 1e-8
 minfunc = 1e-8
 
@@ -101,10 +101,10 @@ from data_pso import Interpolate, I3, Ex3, Tyear, Fyear,Days
 ita = 0.86  # Efficiency of Hydro-Electric plant
 g = 9.810  # Acceleration due to gravity
 power = 683  # Installed Capacity in Megawatt
-seconds_per_month = 2.6298 * 10 ** 6
 S3max = 1769.286774  # h = 700 m
 S3min = 769.457152  # h = 660 m
 S3_twl = 535
+S3_rated_discharge = 490   # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
 ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)
 """
    Environment
@@ -150,7 +150,7 @@ ub = np.zeros(T_O_V)  # initial upper bounds for releases all values are zero
 """
 
 for i in range(0, T_O_V):
-	ub[i] = 1288  # bonds for jan in Sunkoshi-3
+	ub[i] = S3_rated_discharge * Days[i] * 24 * 3600  # bonds for jan in Sunkoshi-3
 	lb[i] = 0  # bonds for jan in Sunkoshi-3
 
 """
@@ -188,7 +188,7 @@ def fitness(x):
 	z_dry = 0
 	z_wet = 0
 	H3 = Height3(x)
-	R3 = (x * 10 ** 6) / seconds_per_month
+	R3 = (x * 10 ** 6) /  (Days * 24 * 3600)
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
 			z_dry = 1-(g * ita * R3[i] * H3[i] / 1000) / power
@@ -212,7 +212,7 @@ def Dry_energy_checkA(x):  # Annual dry energy check
 	z_wet = 0
 	dry_percentA = listmaker(int(Tmonth / 12))
 	H3 = Height3(x)
-	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
+	R3 = (x * 10 ** 6) / (Days * 24 * 3600) # Changing value of release from MCM to cms
 	j = 0
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
@@ -232,7 +232,7 @@ def Dry_energy_checkT(x):  # Total dry energy check
 	z_wet = 0
 	dry_percentT = 0
 	H3 = Height3(x)
-	R3 = (x * 10 ** 6) / seconds_per_month  # Changing value of release from MCM to cms
+	R3 = (x * 10 ** 6) /  (Days * 24 * 3600)  # Changing value of release from MCM to cms
 	j = 0
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
@@ -347,7 +347,7 @@ def Storage_check(Si, Smin):
 def E3(x):
 	e3 = np.zeros(Tmonth)  # initial Energy all values are zero
 	H3 = Height3(x)
-	R3 = (x * 10 ** 6) / seconds_per_month
+	R3 = (x * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
 		e3[i] = g * ita * R3[i] * H3[i] / 1000
 	return e3
@@ -366,7 +366,7 @@ def Height3(x):
 	H3 = np.zeros(Tmonth)  # initial Height all values are zero
 	S3 = Storage3(x)[0]
 	for i in range(Tmonth):
-		H3[i] = Interpolate(Ex3, S3[i], c='Elev')
+		H3[i] = Interpolate(Ex3, (S3[i] + S3[i+1])/2, c='Elev')
 		H3[i] = H3[i] - S3_twl
 	return H3
 
