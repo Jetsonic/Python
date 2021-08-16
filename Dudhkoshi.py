@@ -96,19 +96,27 @@ minfunc = 1e-8
      ed     : Energy output by Dudhkoshi at time t, is in KWh
      ev     : Evaporation in mm per month
 """
-ita_sk = 0.934  # Efficiency of Hydro-Electric plant at sunkoshi
-ita_dt = 0.918  # Efficiency of Hydro-Electric plant at dam toe
+#  All Input Constant Data's
 g = 9.810  # Acceleration due to gravity
-power_sk = 600  # Installed Capacity in Megawatt for sunkoshi power house
-power_dt = 35  # Installed Capacity in Megawatt for Dam toe power house
+ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
+
+# Dudhkoshi
 Sdmax = 1503.37  # h = 636
 Sdmin = 238.9  # h = 530
-SK_effective_twl = 366.4  # Max head minus rated head of turbine
-Dt_effective_twl = 451  # Max head minus rated head of turbine
-SK_rated_discharge = 242.8  # Dudhkoshi total rated discharge for sunkoshi powerhouse in m3/s(from DOED report)
-Dt_rated_discharge = 21  # Dudhkoshi total rated discharge for Dam toe powerhouse in m3/s(from DOED report)
 MDR = 10  # Minimum environment release
-ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)
+
+# Sunkoshi-Powerhouse
+ita_sk = 0.934  # Efficiency of Hydro-Electric plant at sunkoshi
+power_sk = 600  # Installed Capacity in Megawatt for sunkoshi power house
+SK_effective_twl = 366.4  # Max head minus rated head of turbine
+SK_rated_discharge = 242.8  # Dudhkoshi total rated discharge for sunkoshi powerhouse in m3/s(from DOED report)
+
+#  Dam Toe-Powerhouse
+ita_dt = 0.918  # Efficiency of Hydro-Electric plant at dam toe
+power_dt = 35  # Installed Capacity in Megawatt for Dam toe power house
+Dt_effective_twl = 451  # Max head minus rated head of turbine
+Dt_rated_discharge = 21  # Dudhkoshi total rated discharge for Dam toe powerhouse in m3/s(from DOED report)
+
 """
   Environment
   ============
@@ -478,8 +486,8 @@ def E_sk(x):
    Obtained from H-V-A curve
 """
 
-
 # Height for Dudhkoshi
+#  Dam toe Powerhouse
 def Height_dt(x):
 	H_dt = np.zeros(Tmonth)
 	Sd = Storaged(x)[0]
@@ -488,7 +496,7 @@ def Height_dt(x):
 		H_dt[i] = H_dt[i] - Dt_effective_twl
 	return H_dt
 
-
+#  Sunkoshi Powerhouse
 def Height_sk(x):
 	H_sk = np.zeros(Tmonth)
 	Sd = Storaged(x)[0]

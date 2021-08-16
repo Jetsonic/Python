@@ -111,21 +111,27 @@ minfunc = 1e-8
      ev     : Evaporation in mm per month
 """
 
-ita_S3 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
-ita_S2 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-2 (from DOED report)
+#  All Input Constant Data's
 g = 9.810  # Acceleration due to gravity
-power3 = 683  # Installed Capacity in Megawatt of Sunkoshi-3 (from DOED report)
-power2 = 978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
-S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at masl 695 m (from DOED report)
-S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 535 m (from DOED report)
-S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
-S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
-S2_effective_twl = 426.4  # Sunkoshi 2 (Maximum Storage level - Maximum rated Head)
-S3_effective_twl = 535  # Sunkoshi 3 (Maximum Storage level - Maximum rated Head)
-S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
-S2_rated_discharge = 1048  # Sunkoshi-2 total rated discharge in m3/s(from DOED report)
 ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
-"""
+
+#  Sunkoshi-3
+ita_S3 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
+power3 = 683  # Installed Capacity in Megawatt of Sunkoshi-3 (from DOED report)
+S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at masl 695 m (from DOED report)
+S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
+S3_effective_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
+S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
+
+#  Sunkoshi-2
+ita_S2 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-2 (from DOED report)
+power2 = 1978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
+S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 560 m (from DOED report)
+S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
+S2_effective_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
+S2_rated_discharge = 1048  # Sunkoshi-2 total rated discharge in m3/s(from DOED report)
+
+""""
    Environment
   ============
    Listmaker: Is function which takes any positive integer(n) as input and returns a list 
@@ -515,8 +521,6 @@ def Storage2(x):
 
 
 # Energy output per month for Sunkoshi 3
-
-
 def E3(x):  # Calculates energy GWH for each months
 	e3 = np.zeros(Tmonth)
 	H3 = Height3(x)

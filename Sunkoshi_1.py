@@ -96,15 +96,18 @@ minfunc = 1e-8
      e1     : Energy output by Sunkoshi-1 at time t, is in KWh
      ev     : Evaporation in mm per month
 """
-
-ita_S1 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
+#  All Input Constant Data's
 g = 9.810  # Acceleration due to gravity
+ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
+
+#  Sunkoshi-1
+ita_S1 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
 power1 = 1357  # Installed Capacity in Megawatt of Sunkoshi-1 (from jica report)
 S1max = 1341.308929  # h = 424.6,Assumed as twl of Sunkoshi 2
 S1min = 409.5746392  # h = 385 ,Assumed for sediment settlement
 S1_effective_twl = 305  # Assumed as F.S.L of saptakoshi high dam as of jica study or 334.8 as of indian study
-S1_rated_discharge = 1343
-ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72) * 30
+S1_rated_discharge = 1340.4
+
 """
    Environment
   ============

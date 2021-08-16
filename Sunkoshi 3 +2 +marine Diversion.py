@@ -111,24 +111,32 @@ minfunc = 1e-8
      ev     : Evaporation in mm per month
 """
 
-ita_S3 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
-ita_S2 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-2 (from DOED report)
-ita_MD = 0.91  # Efficiency of Hydro-Electric plant of Marine Diversion (from DOED report)
+#  All Input Constant Data's
 g = 9.810  # Acceleration due to gravity
+ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
+
+#  Sunkoshi-3
+ita_S3 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
 power3 = 683  # Installed Capacity in Megawatt of Sunkoshi-3 (from DOED report)
+S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at masl 695 m (from DOED report)
+S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
+S3_effective_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
+S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
+
+#  Sunkoshi-2
+ita_S2 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-2 (from DOED report)
 power2 = 1978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
+S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 560 m (from DOED report)
+S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
+S2_effective_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
+S2_rated_discharge = 1048  # Sunkoshi-2 total rated discharge in m3/s(from DOED report)
+
+# Sunkoshi Marine Diversion
+ita_MD = 0.91  # Efficiency of Hydro-Electric plant of Marine Diversion (from DOED report)
 powerM = 28.62  # Installed Capacity in Megawatt of Sunkoshi-1 (from DOED report)
 Hm = 47.7  # Sunkoshi Marine Diversion project Net Head in m (from DOED report)
-S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at masl 695 m (from DOED report)
-S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 560 m (from DOED report)
-S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
-S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
-S2_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
-S3_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
-S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
-S2_rated_discharge = 1048  # Sunkoshi-2 total rated discharge in m3/s(from DOED report)
 S_MD_Max_discharge = 67  # Maximum release from Marine Diversion is taken as design discharge 67 m3/s
-ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
+
 """
    Environment
   ============
@@ -618,7 +626,7 @@ def Height3(x):
 	S3 = Storage3(x)[0]
 	for i in range(Tmonth):
 		H3[i] = Interpolate(Ex3, (S3[i] + S3[i + 1]) / 2, c='Elev')
-		H3[i] = H3[i] - S3_twl
+		H3[i] = H3[i] - S3_effective_twl
 	return H3
 
 
@@ -628,7 +636,7 @@ def Height2(x):
 	S2 = Storage2(x)[0]
 	for i in range(Tmonth):
 		H2[i] = Interpolate(Ex2, (S2[i] + S2[i + 1]) / 2, c='Elev')
-		H2[i] = H2[i] - S2_twl
+		H2[i] = H2[i] - S2_effective_twl
 	return H2
 
 
@@ -735,8 +743,8 @@ for i in range(Tmonth):
 
 # Storage for optimized Releases
 print("{:<10} {:<10} {:<25} {:<25}".format('Year', 'Months', 'Storage at S3', 'Storage at S2'))
-Storage_for_S2, Overflow_for_S2 = Storage2(xopt)
 Storage_for_S3, Overflow_for_S3 = Storage3(xopt)
+Storage_for_S2, Overflow_for_S2 = Storage2(xopt)
 j = -1
 for i in range(Tmonth):
 	if i % 12 == 0 or i == 0:

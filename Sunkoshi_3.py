@@ -98,14 +98,18 @@ from data_pso import Interpolate, I3, Ex3, Tyear, Fyear,Days
      Qme    : Energy output by Sunkoshi Marine Diversion at time t, is in KWh
      ev     : Evaporation in mm per month
 """
-ita = 0.86  # Efficiency of Hydro-Electric plant
+#  All Input Constant Data's
 g = 9.810  # Acceleration due to gravity
-power = 683  # Installed Capacity in Megawatt
-S3max = 1769.286774  # h = 700 m
-S3min = 769.457152  # h = 660 m
-S3_effective_twl = 535  # Sunkoshi 3 (Maximum Storage level - Maximum net Head)
-S3_rated_discharge = 490   # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
-ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)
+ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
+
+#  Sunkoshi-3
+ita_S3 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-3 (from DOED report)
+power3 = 683  # Installed Capacity in Megawatt of Sunkoshi-3 (from DOED report)
+S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at masl 695 m (from DOED report)
+S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
+S3_effective_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
+S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
+
 """
    Environment
   ============
@@ -178,7 +182,7 @@ for i in range(0, T_O_V):
 #    H3 = Height3(x)
 #    R3 = (x * 10 ** 6) / seconds_per_month
 #    for i in range(Tmonth):
-#        z = 1 - (g * ita * R3[i] * H3[i]) / (1000 * power)
+#        z = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power)
 #        F = F + z
 #    return F
 
@@ -191,9 +195,9 @@ def fitness(x):
 	R3 = (x * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-			z_dry = 1-(g * ita * R3[i] * H3[i] / 1000) / power
+			z_dry = 1-(g * ita_S3 * R3[i] * H3[i] / 1000) / power3
 		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-			z_wet = 1-(g * ita * R3[i] * H3[i] / 1000) / power
+			z_wet = 1-(g * ita_S3 * R3[i] * H3[i] / 1000) / power3
 		Total = 100 * z_dry - z_wet
 		z = z + Total
 	return z
@@ -216,14 +220,14 @@ def Dry_energy_checkA(x):  # Annual dry energy check
 	j = 0
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-			z_dry += ((g * ita * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
+			z_dry += ((g * ita_S3 * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
 			if i % 12 == 11:
 				dry_percentA[j] = dry_energy(z_dry, z_wet)
 				j = j + 1
 				z_dry = 0
 				z_wet = 0
 		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-			z_wet += ((g * ita * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
+			z_wet += ((g * ita_S3 * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
 	return dry_percentA
 
 
@@ -236,9 +240,9 @@ def Dry_energy_checkT(x):  # Total dry energy check
 	j = 0
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-			z_dry += ((g * ita * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
+			z_dry += ((g * ita_S3 * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
 		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-			z_wet += ((g * ita * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
+			z_wet += ((g * ita_S3 * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
 	dry_percentT = dry_energy(z_dry, z_wet)
 	return dry_percentT
 
@@ -349,7 +353,7 @@ def E3(x):
 	H3 = Height3(x)
 	R3 = (x * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
-		e3[i] = ((g * ita * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
+		e3[i] = ((g * ita_S3 * R3[i] * H3[i] / 1000) * Days[i] * 24)/1000
 	return e3
 
 
