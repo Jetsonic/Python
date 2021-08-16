@@ -852,6 +852,11 @@ pso_data1.to_excel(PSO_Outputs, sheet_name='iter_vs_swamp_vs_fitness', index=Fal
 pso_data2.to_excel(PSO_Outputs, sheet_name='iter_vs_Global_best_fitness', index=False)
 Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)
 
+Time = pd.DataFrame()
+Time['Time'] = [(time.time() - start_time)]
+Time.to_excel(PSO_Outputs, sheet_name='Elapsed Time', index=False)
+PSO_Outputs.save()
+
 PSO_Outputs.save()
 
 # print('    mycon : {}'.format(mycons(xopt, *args)))

@@ -52,14 +52,14 @@ start_time = time.time()
         (Default: False)
 
 """
-swarmsize = 10
+swarmsize = 8
 wmax = 1
 wmin = 0.4
 pem = 0.3
 C1 = 1
 C2 = 0.5
 X = 0.9
-maxiter = 30
+maxiter = 1
 minstep = 1e-8
 minfunc = 1e-8
 """
@@ -879,6 +879,7 @@ pso_data1 = pd.DataFrame(iter_vs_swamp_vs_fitness, columns=['Iteration', 'Swamp_
 pso_data2 = pd.DataFrame(iter_vs_globalbest, columns=['Iteration', 'Global_best_fitness'])
 Day_energy_percent_A = pd.DataFrame()
 
+
 Date = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').year.tolist()
 Date1 = pd.date_range(start='1985-1-1', end='2015-1-1', freq='Y').year.tolist()
 Month = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').month_name().tolist()
@@ -938,6 +939,9 @@ Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)
 pso_data1.to_excel(PSO_Outputs, sheet_name='iter_vs_swamp_vs_fitness', index=False)
 pso_data2.to_excel(PSO_Outputs, sheet_name='iter_vs_Global_best_fitness', index=False)
 
+Time = pd.DataFrame()
+Time['Time'] = [(time.time() - start_time)]
+Time.to_excel(PSO_Outputs, sheet_name='Elapsed Time', index=False)
 PSO_Outputs.save()
 
 # print('    mycon : {}'.format(mycons(xopt, *args)))
