@@ -53,14 +53,14 @@ start_time = time.time()
         (Default: False)
 
 """
-swarmsize = 100
+swarmsize = 300
 wmax = 1
-wmin = 0.4
+wmin = 1
 C1 = 1
-C2 = 0.5
+C2 = 0.7
 X = 0.9
 pem = 0.3
-maxiter = 500
+maxiter = 800
 minstep = 1e-8
 minfunc = 1e-8
 
@@ -120,9 +120,9 @@ S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at ma
 S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 535 m (from DOED report)
 S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
 S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
-S2_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)
-S3_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
-S3_rated_discharge = 490   # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
+S2_effective_twl = 426.4  # Sunkoshi 2 (Maximum Storage level - Maximum rated Head)
+S3_effective_twl = 535  # Sunkoshi 3 (Maximum Storage level - Maximum rated Head)
+S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
 S2_rated_discharge = 1048  # Sunkoshi-2 total rated discharge in m3/s(from DOED report)
 ev = (1.51, 2.34, 3.6, 5.09, 5.49, 4.97, 4.14, 4.22, 3.91, 3.41, 2.46, 1.72)  # mean daily evapo-transpiration index of koshi basin
 """
@@ -177,88 +177,89 @@ for i in range(0, T_O_V):
 		j = 0
 	if i % 12 == 0 or i == 0:
 		month = "Jan"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600)/10**6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600)/10**6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 1:
 		month = "Feb"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 2:
 		month = "Mar"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 3:
 		month = "Apr"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 4:
 		month = "May"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 5:
 		month = "Jun"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 6:
 		month = "Jul"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 7:
 		month = "Aug"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 8:
 		month = "Sep"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 9:
 		month = "Oct"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 10:
 		month = "Nov"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 11:
 		month = "Dec"
-		ub[i] = S2_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = S3_rated_discharge * Days[j] * 24 * 3600  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
+	j = j + 1
 
 """
   Objective function
@@ -280,20 +281,20 @@ for i in range(0, T_O_V):
 
 
 # objective function maximizing power production
-def fitness(x):
+def fitness(x):  # Defining fitness function for evaluation
 	z = 0
 	z_dry = 0
 	z_wet = 0
-	H3 = Height3(x)
-	H2 = Height2(x)
-	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
-	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	H3 = Height3(x)  # Calling function Height3(x) for sunkoshi 3 it returns storage water level - turbine level i.e. head for energy generation.
+	H2 = Height2(x)  # Similar to above but returns Sunkoshi 2 energy head
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)  # changing the value of MCM to m3/s  for release of Sunkoshi 3
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)  # Similar to above for release of Sunkoshi 2
 	for i in range(Tmonth):
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-			z_dry = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
+			z_dry = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)  # potential power generation sum of Sunkoshi 2 and 3 in dry months
 		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-			z_wet = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)
-		Total = 100 * z_dry - z_wet
+			z_wet = 1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3) + 1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2)  # potential power generation sum of Sunkoshi 2 and 3 in wet months
+		Total = 100 * z_dry - z_wet  # Formulating weightage of values such than dry energy potential is maximized
 		z = z + Total
 	return z
 
@@ -310,7 +311,7 @@ def fitness(x):
 #	return F
 
 
-def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
+def Dry_energy_checkA(x, c="v"):  # Annual dry energy check,This function takes reservoir,release,storage height and other arguments to return each years dry energy percentage of total annual energy
 	z_dry = 0
 	z_wet = 0
 	ita = 0
@@ -318,7 +319,7 @@ def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
 	R = np.zeros(Tmonth)
 	H3 = Height3(x)
 	H2 = Height2(x)
-	dry_percentA = np.zeros(int(Tmonth / 12))
+	dry_percentA = np.zeros(int(Tmonth / 12))  # defining a 1D array of zeros with size total no of years
 	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
 	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
 	if c == 'S3':
@@ -332,18 +333,18 @@ def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
 	u = 0
 	for y in range(Tmonth):
 		if y % 12 == 0 or y % 12 == 1 or y % 12 == 2 or y % 12 == 3 or y % 12 == 4 or y % 12 == 11:
-			z_dry += (g * ita * R[y] * H[y] / 1000)
+			z_dry += ((g * ita * R[y] * H[y] / 1000) * Days[y] * 24) / 1000  # Dry Energy in GWH
 			if y % 12 == 11:
 				dry_percentA[u] = dry_energy(z_dry, z_wet)
 				u = u + 1
 				z_dry = 0
 				z_wet = 0
 		elif y % 12 == 5 or y % 12 == 6 or y % 12 == 7 or y % 12 == 8 or y % 12 == 9 or y % 12 == 10:
-			z_wet += (g * ita * R[y] * H[y] / 1000)
+			z_wet += ((g * ita * R[y] * H[y] / 1000) * Days[y] * 24) / 1000  # Dry Energy in GWH
 	return dry_percentA
 
 
-def Dry_energy_checkT(x, c="v"):  # Total dry energy check
+def Dry_energy_checkT(x, c="v"):  # Total dry energy check, Similar to annual dry energy check but for total time period
 	z_dry = 0.0
 	z_wet = 0.0
 	ita = 0.0
@@ -364,64 +365,56 @@ def Dry_energy_checkT(x, c="v"):  # Total dry energy check
 		H = H2
 	for t in range(Tmonth):
 		if t % 12 == 0 or t % 12 == 1 or t % 12 == 2 or t % 12 == 3 or t % 12 == 4 or t % 12 == 11:
-			z_dry += (g * ita * R[t] * H[t] / 1000)
+			z_dry += ((g * ita * R[t] * H[t] / 1000) * Days[i] * 24) / 1000
 		elif t % 12 == 5 or t % 12 == 6 or t % 12 == 7 or t % 12 == 8 or t % 12 == 9 or t % 12 == 10:
-			z_wet += (g * ita * R[t] * H[t] / 1000)
+			z_wet += ((g * ita * R[t] * H[t] / 1000) * Days[i] * 24) / 1000
 	dry_percentT = dry_energy(z_dry, z_wet)
 	return dry_percentT
 
+	#
 
-def dry_energy(z_dry, z_wet):
+
+def dry_energy(z_dry, z_wet):  # function to calculate percentage of dry energy
 	dry_percent_total = (z_dry / (z_dry + z_wet) * 100) if (z_dry + z_wet) != 0 else 0
 	return dry_percent_total
 
 
-"""                                                                                                                                                
-   Mass Balance                                                                                                                               
-   =============
-    Here, 
-     S_(t) is the storage at the beginning of time period t
-      For Sunkoshi-3 dam:
-      -------------------
-      S3(t) = I3(inflow) + S3(t-1)-{R3(t-1)(release from sunkoshi-3)-Evaporation at time t}
-
-      For Sunkoshi-2 dam: 
-      -------------------                                                                                                                        
-      S2(t) = S2(t-1) + R3(t-1) + O3(t-1) + l2(t-1) - {Qm(t-1) + R2(t-1) + Ev2(t-1)}
-
-      Constrains
-      ----------
-       When storage volume obtained is lower than minimum storage capacity{i.e. S_min > S_(t)}
-       ---------------------------------------------------------------------------------------
-         Then,PSO search takes the value as infeasible because it violates one of the constrains
-         So new value to satisfy the constrain is searched.
-         and, R_(t) <= total inflow at t (sum of inflow and overflow from dam upstream if any)  
-
-        When storage volume obtained is greater than storage capacity{i.e. S_max < S_(t)}
-       ----------------------------------------------------------------------------------
-         then,S_(t) = S_max
-         and,Overflow[O_(t)] = S_(t) - S_max
-         Otherwise Overflow[O_(t)] = 0
-         
-         Constrain for maximum energy is also given.
-         constrains for irrigation demand can be addressed in [ld - ub] section.
-
+"""                                                                                                                                              
+   Mass Balance                                                                                                                             
+   =============                                                                                                             
+    Here,                                                                                                                    
+     S_(t) is the storage at the beginning of time period t                                                                  
+      For Sunkoshi-3 dam:                                                                                                    
+      -------------------                                                                                                    
+      S3(t) = I3(inflow) + S3(t-1)-{R3(t-1)(release from sunkoshi-3)-Evaporation at time t}                                  
+																															 
+      For Sunkoshi-2 dam:                                                                                                    
+      -------------------                                                                                                                      
+      S2(t) = S2(t-1) + R3(t-1) + O3(t-1) + l2(t-1) - {Qm(t-1) + R2(t-1) + Ev2(t-1)}                                         
+																															 
+      Constrains                                                                                                             
+      ----------                                                                                                             
+       When storage volume obtained is lower than minimum storage capacity{i.e. S_min > S_(t)}                               
+       ---------------------------------------------------------------------------------------                               
+         Then,PSO search takes the value as infeasible because it violates one of the constrains                             
+         So new value to satisfy the constrain is searched.                                                                  
+         and, R_(t) <= total inflow at t (sum of inflow and overflow from dam upstream if any)                               
+																															 
+        When storage volume obtained is greater than storage capacity{i.e. S_max < S_(t)}                                    
+       ----------------------------------------------------------------------------------                                    
+         then,S_(t) = S_max                                                                                                  
+         and,Overflow[O_(t)] = S_(t) - S_max                                                                                 
+         Otherwise Overflow[O_(t)] = 0                                                                                       
+                                                                                                                             
+         Constrain for maximum energy is also given.                                                                         
+         constrains for irrigation demand can be addressed in [ld - ub] section.                                             
+																															 
  """
 
 
 # all constrains required
-def mycons(x):
-	# S3 = Storage3(x)[0]
-	# S2 = Storage2(x)[0]
-	# D_en_S3 = Dry_energy_checkT(x, c='s3')
-	# D_en_S2 = Dry_energy_checkT(x, c='s2')
+def mycons(x):  # Constrains can de stored in this function in the form their evaluation is >= 0 for feasible conditions
 	cons = []
-	# for i in range(int(Tmonth / 12)):
-	# a = [D_en_S3 - 30, D_en_S2 - 30]
-	# cons.extend(a)
-	# for n in range(Tmonth + 1):
-	#	a = [S3[n] - S3min, S2[n] - S2min]
-	#	cons.extend(a)
 	return cons
 
 
@@ -440,10 +433,11 @@ def Storage_check(Si, Smin):
 	if Si > Smin:
 		return Si, 0
 
+	# mass balance for sunkoshi 3
 
-# mass balance for sunkoshi 3
-def Storage3(x):
-	S3 = np.zeros(Tmonth + 1)
+
+def Storage3(x):  # Function containing mass balance equation and correction for illegal storage, this function changes values sent by pso to make it feasible
+	S3 = np.zeros(Tmonth + 1)  # Returns the storage values and over flow values for all months
 	O3 = np.zeros(Tmonth)  # initial overflow all values are zero
 	S3[0] = S3min
 	R3 = x[:Tmonth]
@@ -513,17 +507,17 @@ def Storage2(x):
 	return S2, O2
 
 
-"""
-  Energy
-  =======
-   Energy = P * release * Net head
+"""                                                                                                                           
+  Energy                                                                                                                      
+  =======                                                                                                                     
+   Energy = P * release * Net head                                                                                            
 """
 
 
 # Energy output per month for Sunkoshi 3
 
 
-def E3(x):
+def E3(x):  # Calculates energy GWH for each months
 	e3 = np.zeros(Tmonth)
 	H3 = Height3(x)
 	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
@@ -533,7 +527,7 @@ def E3(x):
 
 
 # Energy output per month for Sunkoshi 2
-def E2(x):
+def E2(x):  # Calculates energy GWH for each months
 	e2 = np.zeros(Tmonth)
 	H2 = Height2(x)
 	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
@@ -542,66 +536,66 @@ def E2(x):
 	return e2
 
 
-"""
-  Height
-  =======
-   Height function H=f(storage)
-   Obtained from H-V-A curve
+"""                                                                                                                           
+  Height                                                                                                                      
+  =======                                                                                                                     
+   Height function H=f(storage)                                                                                               
+   Obtained from H-V-A curve                                                                                                  
 """
 
 
 # Height for Sunkoshi-3
-def Height3(x):
+def Height3(x):  # Height obtained through interpolation from H-A-V data's
 	H3 = np.zeros(Tmonth)
 	S3 = Storage3(x)[0]
 	for i in range(Tmonth):
 		H3[i] = Interpolate(Ex3, (S3[i] + S3[i + 1]) / 2, c='Elev')
-		H3[i] = H3[i] - S3_twl
+		H3[i] = H3[i] - S3_effective_twl
 	return H3
 
 
 # Height for Sunkoshi-2
-def Height2(x):
+def Height2(x):  # Height obtained through interpolation from H-A-V data's
 	H2 = np.zeros(Tmonth)
 	S2 = Storage2(x)[0]
 	for i in range(Tmonth):
 		H2[i] = Interpolate(Ex2, (S2[i] + S2[i + 1]) / 2, c='Elev')
-		H2[i] = H2[i] - S2_twl
+		H2[i] = H2[i] - S2_effective_twl
 	return H2
 
 
-""" 
-  Surface Area
-  =============                         
-   Surface Area function S_a = f(storage)
-   Obtained from H-V-A curve
-
-  Evaporation
-  ============
-   Evaporation function Ev = f(Surface Area)
-   Obtained from equation    
+"""                                                                                                                           
+  Surface Area                                                                                                                
+  =============                                                                                                               
+   Surface Area function S_a = f(storage)                                                                                     
+   Obtained from H-V-A curve                                                                                                  
+																															  
+  Evaporation                                                                                                                 
+  ============                                                                                                                
+   Evaporation function Ev = f(Surface Area)                                                                                  
+   Obtained from equation                                                                                                     
 """
 
 
-def Evaporation3(a, b, d):
+def Evaporation3(a, b, d):  # Returns potential evaporation for each months its unit is MCM
 	S3a = Interpolate(Ex3, a, c='SArea')
 	Eva = (ev[b] * S3a) * Days[d] / 10 ** 9
 	return Eva
 
 
-def Evaporation2(a, b, d):
+def Evaporation2(a, b, d):  # Returns potential evaporation for each months its unit is MCM
 	S2a = Interpolate(Ex2, a, c='SArea')
 	Eva = (ev[b] * S2a) * Days[d] / 10 ** 9
 	return Eva
 
 
-"""                          
-  Constrains
-  ===========
-   Since constrain for storage is addressed in storage function it is no longer need to address here.
-   Here Constrain for maximum energy is checked.
-   constrains for irrigation demand can be addressed in [ld - ub] section.
-
+"""                                                                                                                           
+  Constrains                                                                                                                  
+  ===========                                                                                                                 
+   Since constrain for storage is addressed in storage function it is no longer need to address here.                         
+   Here Constrain for maximum energy is checked.                                                                              
+   constrains for irrigation demand can be addressed in [ld - ub] section.                                                    
+																															  
 """
 
 # calling pso function in pso.py
@@ -788,7 +782,7 @@ for i in range(Tmonth):
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('PSO_output_Sunkoshi_3+2_no_MD(1989-1990).xlsx')
+PSO_Outputs = pd.ExcelWriter('S3+2_2021-8-15.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs = pd.DataFrame()
