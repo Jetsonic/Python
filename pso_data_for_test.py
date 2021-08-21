@@ -17,35 +17,26 @@ import bisect
   Interpolation
   ===============  
     H-A-V data's are is interpolated for known storage volume to return corresponding
-    elevation and surface area.
-    files to call
-    for 1985-2014:pso_data(1985-2014).xlsx
-    for 2004-2014:data_2004-2014.xlsx
+    elevation and surface area.pso_data(1985-2014)
 """
-Inflow = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Inflow')  # here if pso_data1.xlsx(1978-1980) replaced by pso_data.xlsx the code will take input for 47 years(1968-2014)
+Inflow = pd.read_excel(r'data_2004-2014.xlsx', sheet_name='Inflow')  # here if pso_data1.xlsx(1978-1980) replaced by pso_data.xlsx the code will take input for 47 years(1968-2014)
 Start = Inflow['Date'][0]
 End = Inflow['Date'][Inflow.index[-1]]
 Inflow['Year'] = pd.DatetimeIndex(Inflow['Date']).year
 Fyear = Inflow['Year'][0]
 Lyear = Inflow['Year'][Inflow.index[-1]]
 Tyear = Lyear - Fyear + 1
-
 I3 = Inflow['Pachuwarghat'] + Inflow['Local Inflow at Sunkoshi III']
-
 l2 = Inflow['Local Inflow at Sunkoshi II']
-
 l1 = Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
 l1_ = Inflow['Sangutar'] + Inflow['Local Inflow at Sunkoshi I']
-
 Is1 = Inflow['Khurkot'] + Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
 Is2 = Inflow['Khurkot']
 Dk = Inflow['Rabuwa Bazar']
-
-Days = Inflow['Days']
-
-Demand = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand')
+Demand = pd.read_excel(r'data_2004-2014.xlsx', sheet_name='Irrigation demand')
 Dmd = Demand['DEMAND']
-
+Days_in_month = pd.read_excel(r'data_2004-2014.xlsx', sheet_name='Days_in_month')
+Days = Days_in_month['Days']
 Ex1 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI1')
 Ex2 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI2')
 Ex3 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI3')
