@@ -13,7 +13,7 @@ start_time = time.time()
      pip install numpy
      pip install pandas
      Make sure data_pso python file is in same folder as this file.
-     
+
    Things to note.
    ===============
      Make sure data_pso python file is in same folder as this file.
@@ -210,7 +210,7 @@ for i in range(0, T_O_V):
   From T_O_V optimized values
   ---------------------------
     Values that are indexed in range [0-Tmonth] are stored in R1
-    
+
   Here the value of releases are in MCM per month.
   Fitness function gives the total amount energy potential that can be generated when input parameters and optimized released are used as operation policy.
 
@@ -335,12 +335,14 @@ def Storage1(x):
 	S1 = np.zeros(Tmonth + 1)
 	O1 = np.zeros(Tmonth)  # initial overflow all values are zero
 	S1[0] = S1max
+	ev1 = []
 	R1 = x
 	j = 0
 	for i in range(Tmonth):
 		S1_temp = 0
 		S1_temp2 = 0
 		Ev1 = Evaporation1(S1[i], j, i)
+		ev1.append(Ev1)
 		S1_temp = Is1[i] + S1[i] - (R1[i] + Ev1)
 		if S1_temp < S1min:
 			x[i] = np.random.rand() * (Is1[i] + S1[i] - Ev1 - S1min)
@@ -362,7 +364,7 @@ def Storage1(x):
 		j += 1
 		if j == 12:
 			j = 0
-	return S1, O1
+	return S1, O1, ev1
 
 
 """
@@ -415,7 +417,7 @@ def Height1(x):
 
 def Evaporation1(a, b, d):
 	S1a = Interpolate(Ex1, a, c='SArea')
-	Eva = (ev[b] * S1a)*Days[d] / 10 ** 9
+	Eva = (ev[b] * S1a) * Days[d] / 10 ** 9
 	return Eva
 
 
@@ -428,9 +430,8 @@ def Evaporation1(a, b, d):
 
 """
 
-
 # calling pso function in pso.py
-xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, f_ieqcons=mycons, swarmsize=swarmsize, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc,debug=False)
+xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, f_ieqcons=mycons, swarmsize=swarmsize, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 """
   Printing and Saving Outputs
@@ -441,158 +442,13 @@ print('Optimal fitness function value:')
 print('    myfunc: {}'.format(fopt))
 
 print('The optimum releases for each stations are:')
-
-Release_Sunkoshi_1 = []
-Storage_Sunkoshi_1 = []
-Overflow_Sunkoshi_1 = []
-Dry_energy_percent_Annually_for_S1 = []
-Energy_Sunkoshi_1 = []
+Release_Sunkoshi_1 = xopt
+Storage_Sunkoshi_1, Overflow_Sunkoshi_1, Evaporation_loss_S1 = Storage1(xopt)
+Storage_Sunkoshi_1 = Storage_Sunkoshi_1[:-1]
+Dry_energy_percent_Annually_for_S1 = Dry_energy_checkA(xopt)
+Energy_Sunkoshi_1 = E1(xopt)
 Fitness_value = fopt
-Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value','Dry_energy percent Total for S1']
-
-# Optimized Releases
-print("{:<7} {:<7} {:<25}".format('Year', 'Months', 'Release at S1'))
-j = -1
-month = "error"
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 150)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-
-	# print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
-	Release_Sunkoshi_1.append(xopt[i + 0])
-	print("{:<7} {:<7} {:<25}".format(Fyear + j, month, xopt[i + 0]))
-
-# Storage for optimized Releases
-print("{:<10} {:<10} {:<25}".format('Year', 'Months', 'Storage at S1'))
-Storage_for_S1, Overflow_for_S1 = Storage1(xopt)
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 100)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-
-	Storage_Sunkoshi_1.append(Storage_for_S1[i])
-
-	print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Storage_for_S1[i]))
-
-# Overflow for Optimized Releases
-print("{:<10} {:<10} {:<25}".format('Year', 'Months', 'Overflow at S1'))
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 100)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-
-	Overflow_Sunkoshi_1.append(Overflow_for_S1[i])
-	print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Overflow_for_S1[i]))
-
-# Energy generation for Optimized Releases
-print("{:<7} {:<7} {:<25}".format('Year', 'Months', 'Energy at S1'))
-Day_energy_percent_for_S1_total = Dry_energy_checkT(xopt)
-Day_energy_percent_for_S1_Annually = Dry_energy_checkA(xopt)
-Energy_for_S1 = E1(xopt)
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 150)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-		Dry_energy_percent_Annually_for_S1.append(Day_energy_percent_for_S1_Annually[j])
-
-	Energy_Sunkoshi_1.append(Energy_for_S1[i])
-	print("{:<7} {:<7} {:<25}".format(Fyear + j, month, Energy_for_S1[i]))
+Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S1']
 
 '''
  Writing to Excel
@@ -611,13 +467,12 @@ pso_data1 = pd.DataFrame(iter_vs_swamp_vs_fitness, columns=['Iteration', 'Swamp_
 pso_data2 = pd.DataFrame(iter_vs_globalbest, columns=['Iteration', 'Global_best_fitness'])
 Day_energy_percent_A = pd.DataFrame()
 
-
 Date = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').year.tolist()
 Date1 = pd.date_range(start='1985-1-1', end='2015-1-1', freq='Y').year.tolist()
 Month = pd.date_range(start='1985-1-1', end='2015-1-1', freq='M').month_name().tolist()
 
 Parameters['Parameters'] = Inputs
-Parameters['Values'] = [swarmsize, wmax, wmin, C1, C2, X, maxiter, minstep, minfunc, Fitness_value, Day_energy_percent_for_S1_total]
+Parameters['Values'] = [swarmsize, wmax, wmin, C1, C2, X, maxiter, minstep, minfunc, Fitness_value, Dry_energy_checkT(xopt)]
 
 Outputs['Date'] = Date
 Outputs['Month'] = Month
@@ -626,6 +481,7 @@ Outputs['Release_Sunkoshi_1'] = Release_Sunkoshi_1
 Outputs['Storage_Sunkoshi_1'] = Storage_Sunkoshi_1
 Outputs['Overflow_Sunkoshi_1'] = Overflow_Sunkoshi_1
 Outputs['Energy_Sunkoshi_1'] = Energy_Sunkoshi_1
+Outputs["Evaporation_loss_S1"] = Evaporation_loss_S1
 
 Release['Date'] = Date
 Release['Month'] = Month
@@ -644,8 +500,7 @@ Energy['Month'] = Month
 Energy['Energy_Sunkoshi_1'] = Energy_Sunkoshi_1
 
 Day_energy_percent_A['Date'] = Date1
-Day_energy_percent_A['Dry Energy percent S1'] = Day_energy_percent_for_S1_Annually
-
+Day_energy_percent_A['Dry Energy percent S1'] = Dry_energy_percent_Annually_for_S1
 
 Parameters.to_excel(PSO_Outputs, sheet_name='Parameters', index=False)
 Outputs.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
@@ -653,14 +508,13 @@ Release.to_excel(PSO_Outputs, sheet_name='Release', index=False)
 Storage.to_excel(PSO_Outputs, sheet_name='Storage', index=False)
 Overflow.to_excel(PSO_Outputs, sheet_name='Overflow', index=False)
 Energy.to_excel(PSO_Outputs, sheet_name='Energy', index=False)
-pso_data1.to_excel(PSO_Outputs,sheet_name='iter_vs_swamp_vs_fitness', index=False)
-pso_data2.to_excel(PSO_Outputs,sheet_name='iter_vs_Global_best_fitness', index=False)
+pso_data1.to_excel(PSO_Outputs, sheet_name='iter_vs_swamp_vs_fitness', index=False)
+pso_data2.to_excel(PSO_Outputs, sheet_name='iter_vs_Global_best_fitness', index=False)
 Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)
 
 Time = pd.DataFrame()
 Time['Time'] = [(time.time() - start_time)]
 Time.to_excel(PSO_Outputs, sheet_name='Elapsed Time', index=False)
-
 
 PSO_Outputs.save()
 

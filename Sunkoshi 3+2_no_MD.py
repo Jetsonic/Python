@@ -53,14 +53,14 @@ start_time = time.time()
         (Default: False)
 
 """
-swarmsize = 300
+swarmsize = 8
 wmax = 1
 wmin = 1
 C1 = 1
 C2 = 0.7
 X = 0.9
 pem = 0.3
-maxiter = 800
+maxiter = 1
 minstep = 1e-8
 minfunc = 1e-8
 
@@ -183,10 +183,10 @@ for i in range(0, T_O_V):
 		j = 0
 	if i % 12 == 0 or i == 0:
 		month = "Jan"
-		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600)/10**6  # bonds for Sunkoshi-2
+		ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
 		lb[i] = 0  # bonds for Sunkoshi-2
 		if i / 12 < (Tmonth / 12):
-			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600)/10**6  # bonds for Sunkoshi-3
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 			lb[i] = 0  # bonds for Sunkoshi-3
 	elif i % 12 == 1:
 		month = "Feb"
@@ -371,13 +371,14 @@ def Dry_energy_checkT(x, c="v"):  # Total dry energy check, Similar to annual dr
 		H = H2
 	for t in range(Tmonth):
 		if t % 12 == 0 or t % 12 == 1 or t % 12 == 2 or t % 12 == 3 or t % 12 == 4 or t % 12 == 11:
-			z_dry += ((g * ita * R[t] * H[t] / 1000) * Days[i] * 24) / 1000
+			z_dry += ((g * ita * R[t] * H[t] / 1000) * Days[t] * 24) / 1000
 		elif t % 12 == 5 or t % 12 == 6 or t % 12 == 7 or t % 12 == 8 or t % 12 == 9 or t % 12 == 10:
-			z_wet += ((g * ita * R[t] * H[t] / 1000) * Days[i] * 24) / 1000
+			z_wet += ((g * ita * R[t] * H[t] / 1000) * Days[t] * 24) / 1000
 	dry_percentT = dry_energy(z_dry, z_wet)
 	return dry_percentT
 
-	#
+
+#
 
 
 def dry_energy(z_dry, z_wet):  # function to calculate percentage of dry energy
@@ -422,23 +423,6 @@ def dry_energy(z_dry, z_wet):  # function to calculate percentage of dry energy
 def mycons(x):  # Constrains can de stored in this function in the form their evaluation is >= 0 for feasible conditions
 	cons = []
 	return cons
-
-
-# mass balance for sunkoshi 3
-def Overflow(Si, Smax):
-	if Si >= Smax:
-		return Si - Smax, Smax
-	else:
-		return 0, Si
-
-
-def Storage_check(Si, Smin):
-	if Si <= Smin:
-		n = Smin - Si
-		return Smin, n
-	if Si > Smin:
-		return Si, 0
-
 
 # mass balance for sunkoshi 3
 def Storage3(x):  # Function containing mass balance equation and correction for illegal storage, this function changes values sent by pso to make it feasible
@@ -614,171 +598,29 @@ print('    myfunc: {}'.format(fopt))
 
 print('The optimum releases for each stations are:')
 
-Release_Sunkoshi_2 = []
-Release_Sunkoshi_3 = []
-Storage_Sunkoshi_2 = []
-Storage_Sunkoshi_3 = []
-Overflow_Sunkoshi_2 = []
-Overflow_Sunkoshi_3 = []
-Dry_energy_percent_Annually_for_S3 = []
-Dry_energy_percent_Annually_for_S2 = []
-Energy_Sunkoshi_2 = []
-Energy_Sunkoshi_3 = []
-Fitness_value = fopt
-Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S2']
+Release_Sunkoshi_2 = xopt[Tmonth:2 * Tmonth]
+Release_Sunkoshi_3 = xopt[:Tmonth]
 
-# Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25}".format('Year', 'Months', 'Release at S3', 'Release at S2'))
-j = -1
-month = "error"
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 150)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-
-	# print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
-	Release_Sunkoshi_2.append(xopt[i + Tmonth])
-	Release_Sunkoshi_3.append(xopt[i])
-	print("{:<7} {:<7} {:<25} {:<25}".format(Fyear + j, month, xopt[i], xopt[i + Tmonth]))
-
-# Storage for optimized Releases
-print("{:<10} {:<10} {:<25} {:<25}".format('Year', 'Months', 'Storage at S3', 'Storage at S2'))
 Storage_for_S2, Overflow_for_S2 = Storage2(xopt)
+Storage_for_S2 = Storage_for_S2[:-1]
 Storage_for_S3, Overflow_for_S3 = Storage3(xopt)
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 100)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
+Storage_for_S3 = Storage_for_S3[:-1]
 
-	Storage_Sunkoshi_2.append(Storage_for_S2[i])
-	Storage_Sunkoshi_3.append(Storage_for_S3[i])
+Storage_Sunkoshi_2 = Storage_for_S2
+Storage_Sunkoshi_3 = Storage_for_S3
+Overflow_Sunkoshi_2 = Overflow_for_S2
+Overflow_Sunkoshi_3 = Overflow_for_S3
 
-	print("{:<10} {:<10} {:<25} {:<25}".format(Fyear + j, month, Storage_for_S3[i], Storage_for_S2[i]))
-
-# Overflow for Optimized Releases
-print("{:<10} {:<10} {:<25} {:<25}".format('Year', 'Months', 'Overflow at S3', 'Overflow at S2'))
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 100)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-
-	Overflow_Sunkoshi_2.append(Overflow_for_S2[i])
-	Overflow_Sunkoshi_3.append(Overflow_for_S3[i])
-	print("{:<10} {:<10} {:<25} {:<25}".format(Fyear + j, month, Overflow_for_S3[i], Overflow_for_S2[i]))
-
-# Energy generation for Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25}".format('Year', 'Months', 'Energy at S3', 'Energy at S2'))
 Day_energy_percent_for_S3_total = Dry_energy_checkT(xopt, c='S3')
 Day_energy_percent_for_S2_total = Dry_energy_checkT(xopt, c='S2')
+
 Day_energy_percent_for_S3_Annually = Dry_energy_checkA(xopt, c='S3')
 Day_energy_percent_for_S2_Annually = Dry_energy_checkA(xopt, c='S2')
-Energy_for_S3 = E3(xopt)
-Energy_for_S2 = E2(xopt)
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 150)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-		Dry_energy_percent_Annually_for_S3.append(Day_energy_percent_for_S3_Annually[j])
-		Dry_energy_percent_Annually_for_S2.append(Day_energy_percent_for_S2_Annually[j])
+Energy_Sunkoshi_2 = E2(xopt)
+Energy_Sunkoshi_3 = E3(xopt)
+Fitness_value = fopt
 
-	Energy_Sunkoshi_2.append(Energy_for_S2[i])
-	Energy_Sunkoshi_3.append(Energy_for_S3[i])
-	print("{:<7} {:<7} {:<25} {:<25}".format(Fyear + j, month, Energy_for_S3[i], Energy_for_S2[i]))
+Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S2']
 
 '''
  Writing to Excel

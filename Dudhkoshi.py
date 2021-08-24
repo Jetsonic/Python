@@ -52,14 +52,14 @@ start_time = time.time()
         (Default: False)
 
 """
-swarmsize = 20
+swarmsize = 8
 wmax = 0.5
 wmin = 0.1
 C1 = 1
 C2 = 0.5
 X = 0.9
 pem = 0.3
-maxiter = 20
+maxiter = 1
 minstep = 1e-8
 minfunc = 1e-8
 """"
@@ -403,53 +403,34 @@ def mycons(x):
 def Storaged(x):
 	Sd = np.zeros(Tmonth + 1)
 	Od = np.zeros(Tmonth)  # initial overflow all values are zero
+	evd = []
 	Sd[0] = Sdmax
 	R_sk = x[:Tmonth]
-	R_dt = x[Tmonth:Tmonth * 2]
+	R_dt = x[Tmonth:]
 	j = 0
 	for i in range(Tmonth):
-		Sd_temp = 0
-		Sd_temp2 = 0
 		Evd = Evaporationd(Sd[i], j, i)
+		evd.append(Evd)
 		Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
-		while Sd[i + 1] < Sdmin:
-			x[i + Tmonth] = lb[i + Tmonth]
-			x[i] = np.random.rand() * (Dk[i] + Sd[i] - Evd - R_dt[i] - Sdmin - Od[i])
+		if Sd[i + 1] < Sdmin:
+			R_dt[i] = lb[i+Tmonth]
+			R_sk[i] = np.random.rand() * (Dk[i] + Sd[i] - Evd - R_dt[i] - Sdmin - Od[i])
 			Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
+			if R_sk[i] < 0:
+				R_sk[i] = 0
+				R_dt[i] = 0.98 * (Dk[i] + Sd[i] - Evd - R_sk[i] - Sdmin - Od[i])
+				Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
 		else:
 			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
 		if Sd[i + 1] > Sdmax:
-			if x[i] < ub[i]:
-				x[i] = x[i] + Sd[i + 1] - Sdmax
-				if x[i] > ub[i]:
-					x[i + Tmonth] = x[i] - ub[i]
-					if x[i + Tmonth] > ub[i + Tmonth]:
-						Od[i] = x[i + Tmonth] - ub[i + Tmonth]
-						x[i + Tmonth] = ub[i + Tmonth]
-			else:
-				Od[i] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd) - Sdmax
+			Od[i] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd) - Sdmax
 			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
 		else:
 			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
 		j += 1
 		if j == 12:
 			j = 0
-	return Sd, Od
-
-
-def Overflow(Si, Smax):
-	if Si >= Smax:
-		return Si - Smax, Smax
-	else:
-		return 0, Si
-
-
-def Storage_check(Si, Smin):
-	if Si <= Smin:
-		n = Smin - Si
-		return Smin, n
-	if Si > Smin:
-		return Si, 0
+	return Sd, Od, evd
 
 
 """
@@ -485,6 +466,7 @@ def E_sk(x):
    Obtained from H-V-A curve
 """
 
+
 # Height for Dudhkoshi
 #  Dam toe Powerhouse
 def Height_dt(x):
@@ -494,6 +476,7 @@ def Height_dt(x):
 		H_dt[i] = Interpolate(Exd, (Sd[i] + Sd[i + 1]) / 2, c='Elev')
 		H_dt[i] = H_dt[i] - Dt_effective_twl
 	return H_dt
+
 
 #  Sunkoshi Powerhouse
 def Height_sk(x):
@@ -549,164 +532,24 @@ print('    myfunc: {}'.format(fopt))
 
 print('The optimum releases for each stations are:')
 
-Release_Dudhkoshi_sk = []
-Release_Dudhkoshi_dt = []
-Storage_Dudhkoshi = []
-Overflow_Dudhkoshi = []
-Dry_energy_percent_Annually_for_sk = []
-Dry_energy_percent_Annually_for_dt = []
-Energy_Dudhkoshi_sk = []
-Energy_Dudhkoshi_dt = []
-Fitness_value = fopt
-Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'fitness', 'Dry_energy percent Total for SK PH', 'Dry_energy percent Total for DT PH']
+Release_Dudhkoshi_sk = xopt[:Tmonth]
+Release_Dudhkoshi_dt = xopt[Tmonth:Tmonth * 2]
 
-# Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25}".format('Year', 'Months', 'Release at DK_sk', 'Release at DK_dt'))
-j = -1
-month = "error"
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 150)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
+Storage_for_DK, Overflow_for_DK,Evaporation_loss_DK = Storaged(xopt)
+Storage_for_DK = Storage_for_DK[:-1]
+Storage_Dudhkoshi = Storage_for_DK
+Overflow_Dudhkoshi = Overflow_for_DK
 
-	# print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
-	Release_Dudhkoshi_sk.append(xopt[i])
-	Release_Dudhkoshi_dt.append(xopt[i + Tmonth])
-	print("{:<7} {:<7} {:<25}".format(Fyear + j, month, xopt[i + 0], xopt[Tmonth + i]))
-
-# Storage for optimized Releases
-print("{:<10} {:<10} {:<25}".format('Year', 'Months', 'Storage at Dk'))
-Storage_for_DK, Overflow_for_DK = Storaged(xopt)
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 100)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-
-	Storage_Dudhkoshi.append(Storage_for_DK[i])
-	print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Storage_for_DK[i]))
-
-# Overflow for Optimized Releases
-print("{:<10} {:<10} {:<25}".format('Year', 'Months', 'Overflow at Dk'))
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 100)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
-
-	Overflow_Dudhkoshi.append(Overflow_for_DK[i])
-	print("{:<10} {:<10} {:<25}".format(Fyear + j, month, Overflow_for_DK[i]))
-
-# Energy generation for Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25}".format('Year', 'Months', 'Energy at Sk PH', 'Energy at DT PH'))
 Day_energy_percent_for_sk_total = Dry_energy_checkT(xopt, c='sk')
 Day_energy_percent_for_dt_total = Dry_energy_checkT(xopt, c='dt')
 Day_energy_percent_for_sk_Annually = Dry_energy_checkA(xopt, c='sk')
 Day_energy_percent_for_dt_Annually = Dry_energy_checkA(xopt, c='dt')
-Energy_for_sk = E_sk(xopt)
-Energy_for_dt = E_dt(xopt)
-j = -1
-for i in range(Tmonth):
-	if i % 12 == 0 or i == 0:
-		month = "Jan"
-		print('-' * 150)
-		j = j + 1
-	elif i % 12 == 1:
-		month = "Feb"
-	elif i % 12 == 2:
-		month = "Mar"
-	elif i % 12 == 3:
-		month = "Apr"
-	elif i % 12 == 4:
-		month = "May"
-	elif i % 12 == 5:
-		month = "Jun"
-	elif i % 12 == 6:
-		month = "Jul"
-	elif i % 12 == 7:
-		month = "Aug"
-	elif i % 12 == 8:
-		month = "Sep"
-	elif i % 12 == 9:
-		month = "Oct"
-	elif i % 12 == 10:
-		month = "Nov"
-	elif i % 12 == 11:
-		month = "Dec"
 
-	Energy_Dudhkoshi_sk.append(Energy_for_sk[i])
-	Energy_Dudhkoshi_dt.append(Energy_for_dt[i])
-	print("{:<7} {:<7} {:<25}".format(Fyear + j, month, Energy_for_sk[i], Energy_for_dt[i]))
+Energy_Dudhkoshi_sk = E_sk(xopt)
+Energy_Dudhkoshi_dt = E_dt(xopt)
 
+Fitness_value = fopt
+Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'fitness', 'Dry_energy percent Total for SK PH', 'Dry_energy percent Total for DT PH']
 '''
  Writing to Excel
  =================
@@ -740,6 +583,7 @@ Outputs['Storage_Dudhkoshi'] = Storage_Dudhkoshi
 Outputs['Overflow_Dudhkoshi'] = Overflow_Dudhkoshi
 Outputs['Energy_Dudhkoshi_sk'] = Energy_Dudhkoshi_sk
 Outputs['Energy_Dudhkoshi_dt'] = Energy_Dudhkoshi_dt
+Outputs["Evaporation_loss_S3"] = Evaporation_loss_DK
 
 Release['Date'] = Date
 Release['Month'] = Month
@@ -762,7 +606,6 @@ Energy['Energy_Dudhkoshi_dt'] = Energy_Dudhkoshi_dt
 Day_energy_percent_A['Date'] = Date1
 Day_energy_percent_A['Dry Energy percent sk'] = Day_energy_percent_for_sk_Annually
 Day_energy_percent_A['Dry Energy percent dt'] = Day_energy_percent_for_dt_Annually
-
 
 Parameters.to_excel(PSO_Outputs, sheet_name='Inputs', index=False)
 Outputs.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)

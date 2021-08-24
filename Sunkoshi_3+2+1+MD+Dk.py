@@ -51,14 +51,14 @@ start_time = time.time()
         If True, progress statements will be displayed every iteration
         (Default: False)
 """
-swarmsize = 2500
+swarmsize = 8
 wmax = 1
 wmin = 0.3
 C1 = 1.5
 C2 = 1.5
 X = 1
 pem = 0.3
-maxiter = 1000
+maxiter = 1
 minstep = 1e-8
 minfunc = 1e-8
 """"
@@ -207,8 +207,8 @@ Dt_rated_discharge = 21  # Dudhkoshi total rated discharge for Dam toe powerhous
 
 
 def listmaker(n):
-    listofzeros = [0.0] * n
-    return listofzeros
+	listofzeros = [0.0] * n
+	return listofzeros
 
 
 Tmonth = Tyear * 12
@@ -229,237 +229,237 @@ ub = np.zeros(T_O_V)
 """
 j = 0
 for i in range(0, T_O_V):
-    if j >= Tmonth:
-        j = 0
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 1:
-        month = "Feb"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[1]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 2:
-        month = "Mar"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[2]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 3:
-        month = "Apr"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[3]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 4:
-        month = "May"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[4]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 5:
-        month = "Jun"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[5]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 6:
-        month = "Jul"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[6]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 7:
-        month = "Aug"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[7]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 8:
-        month = "Sep"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[8]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 9:
-        month = "Oct"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[9]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 10:
-        month = "Nov"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[10]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    elif i % 12 == 11:
-        month = "Dec"
-        ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
-        lb[i] = Dmd[11]  # lowerbounds for Sunkoshi Marine Diversion
-        if i / 12 < (Tmonth * 5 / 12):
-            ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
-        if i / 12 < (Tmonth * 4 / 12):
-            ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
-            lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
-        if i / 12 < (Tmonth * 3 / 12):
-            ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
-        if i / 12 < (Tmonth * 2 / 12):
-            ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-            lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
-    j = j + 1
+	if j >= Tmonth:
+		j = 0
+	if i % 12 == 0 or i == 0:
+		month = "Jan"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[0]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 1:
+		month = "Feb"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[1]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 2:
+		month = "Mar"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[2]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 3:
+		month = "Apr"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[3]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 4:
+		month = "May"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[4]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 5:
+		month = "Jun"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[5]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 6:
+		month = "Jul"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[6]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 7:
+		month = "Aug"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[7]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 8:
+		month = "Sep"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[8]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 9:
+		month = "Oct"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[9]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 10:
+		month = "Nov"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[10]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	elif i % 12 == 11:
+		month = "Dec"
+		ub[i] = (S_MD_Max_discharge * Days[j] * 24 * 3600) / 10 ** 6  # upperbounds for Sunkoshi Marine Diversion
+		lb[i] = Dmd[11]  # lowerbounds for Sunkoshi Marine Diversion
+		if i / 12 < (Tmonth * 5 / 12):
+			ub[i] = (Dt_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi dam toe powerhouse
+		if i / 12 < (Tmonth * 4 / 12):
+			ub[i] = (SK_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Dudhkoshi Sunkoshi powerhouse
+			lb[i] = 0  # bonds for Dudhkoshi Sunkoshi powerhouse
+		if i / 12 < (Tmonth * 3 / 12):
+			ub[i] = (S1_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-1
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S2_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-2
+		if i / 12 < (Tmonth * 2 / 12):
+			ub[i] = (S3_rated_discharge * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+			lb[i] = (MDR * Days[j] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+	j = j + 1
 
 """
   Objective function
@@ -484,26 +484,26 @@ for i in range(0, T_O_V):
 
 # objective function maximizing power production
 def fitness(x):
-    F = 0
-    H3 = Height3(x)  # Calling function Height3(x) for sunkoshi 3 it returns storage water level - turbine level i.e. head for energy generation.
-    H2 = Height2(x)
-    H_dt = Height_dt(x)
-    H_sk = Height_sk(x)
-    H1 = Height1(x)
-    R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
-    R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
-    R1 = (x[Tmonth * 2:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
-    R_sk = (x[Tmonth * 3:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
-    R_dt = (x[Tmonth * 4:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
-    Rm = (x[Tmonth * 5:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
-    for i in range(Tmonth):
-        z3 = (1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3))
-        z2 = (1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2))
-        z1 = (1 - (g * ita_S1 * R1[i] * H1[i]) / (1000 * power1))
-        zd = (1 - (g * ita_sk * R_sk[i] * H_sk[i]) / (1000 * power_sk)) + (1 - (g * ita_dt * R_dt[i] * H_dt[i]) / (1000 * power_dt))
-        zm = (1 - (g * ita_MD * Rm[i] * Hm) / (1000 * powerM))
-        F = F + z1 + z2 + z3 + zd + zm
-    return F/(Ovariables * Tmonth)
+	F = 0
+	H3 = Height3(x)  # Calling function Height3(x) for sunkoshi 3 it returns storage water level - turbine level i.e. head for energy generation.
+	H2 = Height2(x)
+	H_dt = Height_dt(x)
+	H_sk = Height_sk(x)
+	H1 = Height1(x)
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	R1 = (x[Tmonth * 2:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
+	R_sk = (x[Tmonth * 3:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
+	R_dt = (x[Tmonth * 4:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
+	Rm = (x[Tmonth * 5:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
+	for i in range(Tmonth):
+		z3 = (1 - (g * ita_S3 * R3[i] * H3[i]) / (1000 * power3))
+		z2 = (1 - (g * ita_S2 * R2[i] * H2[i]) / (1000 * power2))
+		z1 = (1 - (g * ita_S1 * R1[i] * H1[i]) / (1000 * power1))
+		zd = (1 - (g * ita_sk * R_sk[i] * H_sk[i]) / (1000 * power_sk)) + (1 - (g * ita_dt * R_dt[i] * H_dt[i]) / (1000 * power_dt))
+		zm = (1 - (g * ita_MD * Rm[i] * Hm) / (1000 * powerM))
+		F = F + z1 + z2 + z3 + zd + zm
+	return F / (Ovariables * Tmonth)
 
 
 """
@@ -515,114 +515,114 @@ def fitness(x):
 
 
 def Dry_energy_checkA(x, c="v"):  # Annual dry energy check
-    z_dry = 0
-    z_wet = 0
-    ita = 0
-    H = np.zeros(Tmonth)
-    R = np.zeros(Tmonth)
-    H3 = Height3(x)
-    H2 = Height2(x)
-    H_sk = Height_sk(x)
-    H_dt = Height_dt(x)
-    H1 = Height1(x)
-    dry_percentA = np.zeros(int(Tmonth / 12))
-    R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
-    R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
-    R1 = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
-    R_sk = (x[3 * Tmonth:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
-    R_dt = (x[4 * Tmonth:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
-    Rm = (x[5 * Tmonth:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
-    if c == 'S3':
-        R = R3
-        ita = ita_S3
-        H = H3
-    if c == 'S2':
-        R = R2
-        ita = ita_S2
-        H = H2
-    if c == 'sk':
-        R = R_sk
-        ita = ita_sk
-        H = H_sk
-    if c == 'dt':
-        R = R_dt
-        ita = ita_dt
-        H = H_dt
-    if c == 'S1':
-        R = R1
-        ita = ita_S1
-        H = H1
-    if c == 'MD':
-        R = Rm
-        ita = ita_MD
-        H = H + Hm
-    j = 0
-    for i in range(Tmonth):
-        if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-            z_dry += (g * ita * R[i] * H[i] / 1000)
-            if i % 12 == 11:
-                dry_percentA[j] = dry_energy(z_dry, z_wet)
-                j = j + 1
-                z_dry = 0
-                z_wet = 0
-        elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-            z_wet += (g * ita * R[i] * H[i] / 1000)
-    return dry_percentA
+	z_dry = 0
+	z_wet = 0
+	ita = 0
+	H = np.zeros(Tmonth)
+	R = np.zeros(Tmonth)
+	H3 = Height3(x)
+	H2 = Height2(x)
+	H_sk = Height_sk(x)
+	H_dt = Height_dt(x)
+	H1 = Height1(x)
+	dry_percentA = np.zeros(int(Tmonth / 12))
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	R1 = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
+	R_sk = (x[3 * Tmonth:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
+	R_dt = (x[4 * Tmonth:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
+	Rm = (x[5 * Tmonth:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
+	if c == 'S3':
+		R = R3
+		ita = ita_S3
+		H = H3
+	if c == 'S2':
+		R = R2
+		ita = ita_S2
+		H = H2
+	if c == 'sk':
+		R = R_sk
+		ita = ita_sk
+		H = H_sk
+	if c == 'dt':
+		R = R_dt
+		ita = ita_dt
+		H = H_dt
+	if c == 'S1':
+		R = R1
+		ita = ita_S1
+		H = H1
+	if c == 'MD':
+		R = Rm
+		ita = ita_MD
+		H = H + Hm
+	j = 0
+	for i in range(Tmonth):
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry += (g * ita * R[i] * H[i] / 1000)
+			if i % 12 == 11:
+				dry_percentA[j] = dry_energy(z_dry, z_wet)
+				j = j + 1
+				z_dry = 0
+				z_wet = 0
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet += (g * ita * R[i] * H[i] / 1000)
+	return dry_percentA
 
 
 def Dry_energy_checkT(x, c="v"):  # Total dry energy check
-    z_dry = 0
-    z_wet = 0
-    ita = 0
-    H = np.zeros(Tmonth)
-    R = np.zeros(Tmonth)
-    H3 = Height3(x)
-    H2 = Height2(x)
-    H_sk = Height_sk(x)
-    H_dt = Height_dt(x)
-    H1 = Height1(x)
-    R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
-    R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
-    R1 = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
-    R_sk = (x[3 * Tmonth:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
-    R_dt = (x[4 * Tmonth:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
-    Rm = (x[5 * Tmonth:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
-    if c == 'S3':
-        R = R3
-        ita = ita_S3
-        H = H3
-    if c == 'S2':
-        R = R2
-        ita = ita_S2
-        H = H2
-    if c == 'sk':
-        R = R_sk
-        ita = ita_sk
-        H = H_sk
-    if c == 'dt':
-        R = R_dt
-        ita = ita_dt
-        H = H_dt
-    if c == 'S1':
-        R = R1
-        ita = ita_S1
-        H = H1
-    if c == 'MD':
-        R = Rm
-        ita = ita_MD
-        H = H + Hm
-    for i in range(Tmonth):
-        if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-            z_dry += (g * ita * R[i] * H[i] / 1000)
-        elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-            z_wet += (g * ita * R[i] * H[i] / 1000)
-    dry_percentT = dry_energy(z_dry, z_wet)
-    return dry_percentT
+	z_dry = 0
+	z_wet = 0
+	ita = 0
+	H = np.zeros(Tmonth)
+	R = np.zeros(Tmonth)
+	H3 = Height3(x)
+	H2 = Height2(x)
+	H_sk = Height_sk(x)
+	H_dt = Height_dt(x)
+	H1 = Height1(x)
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	R1 = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
+	R_sk = (x[3 * Tmonth:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
+	R_dt = (x[4 * Tmonth:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
+	Rm = (x[5 * Tmonth:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
+	if c == 'S3':
+		R = R3
+		ita = ita_S3
+		H = H3
+	if c == 'S2':
+		R = R2
+		ita = ita_S2
+		H = H2
+	if c == 'sk':
+		R = R_sk
+		ita = ita_sk
+		H = H_sk
+	if c == 'dt':
+		R = R_dt
+		ita = ita_dt
+		H = H_dt
+	if c == 'S1':
+		R = R1
+		ita = ita_S1
+		H = H1
+	if c == 'MD':
+		R = Rm
+		ita = ita_MD
+		H = H + Hm
+	for i in range(Tmonth):
+		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
+			z_dry += (g * ita * R[i] * H[i] / 1000)
+		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
+			z_wet += (g * ita * R[i] * H[i] / 1000)
+	dry_percentT = dry_energy(z_dry, z_wet)
+	return dry_percentT
 
 
 def dry_energy(z_dry, z_wet):
-    dry_percent_total = (z_dry / (z_dry + z_wet) * 100) if (z_dry + z_wet) != 0 else 0
-    return dry_percent_total
+	dry_percent_total = (z_dry / (z_dry + z_wet) * 100) if (z_dry + z_wet) != 0 else 0
+	return dry_percent_total
 
 
 """                                                                                                                                                
@@ -660,148 +660,148 @@ def dry_energy(z_dry, z_wet):
 
 # mass balance for sunkoshi 3
 def Storage3(x):  # Function containing mass balance equation and correction for illegal storage, this function changes values sent by pso to make it feasible
-    S3 = np.zeros(Tmonth + 1)  # Returns the storage values and over flow values for all months
-    O3 = np.zeros(Tmonth)  # initial overflow all values are zero
-    ev3 = []
-    S3[0] = S3max
-    R3 = x
-    j = 0
-    for i in range(Tmonth):
-        Ev3 = Evaporation3(S3[i], j, i)
-        ev3.append(Ev3)
-        S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
-        if S3[i + 1] < S3min:
-            R3[i] = np.random.rand() * (I3[i] + S3[i] - Ev3 - S3min - O3[i])
-            S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
-        else:
-            S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
-        if S3[i + 1] > S3max:
-            if R3[i] < ub[i]:
-                R3[i] = R3[i] + S3[i + 1] - S3max
-                if R3[i] > ub[i]:
-                    O3[i] = R3[i] - ub[i]
-                    R3[i] = ub[i]
-            else:
-                O3[i] = S3[i + 1] - S3max
-            S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
-        j += 1
-        if j == 12:
-            j = 0
-    return S3, O3, ev3
+	S3 = np.zeros(Tmonth + 1)  # Returns the storage values and over flow values for all months
+	O3 = np.zeros(Tmonth)  # initial overflow all values are zero
+	ev3 = []
+	S3[0] = S3max
+	R3 = x
+	j = 0
+	for i in range(Tmonth):
+		Ev3 = Evaporation3(S3[i], j, i)
+		ev3.append(Ev3)
+		S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
+		if S3[i + 1] < S3min:
+			R3[i] = np.random.rand() * (I3[i] + S3[i] - Ev3 - S3min - O3[i])
+			S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
+		else:
+			S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
+		if S3[i + 1] > S3max:
+			if R3[i] < ub[i]:
+				R3[i] = R3[i] + S3[i + 1] - S3max
+				if R3[i] > ub[i]:
+					O3[i] = R3[i] - ub[i]
+					R3[i] = ub[i]
+			else:
+				O3[i] = S3[i + 1] - S3max
+			S3[i + 1] = I3[i] + S3[i] - (R3[i] + Ev3 + O3[i])
+		j += 1
+		if j == 12:
+			j = 0
+	return S3, O3, ev3
 
 
 # mass balance for sunkoshi 2
 def Storage2(x):
-    S2 = np.zeros(Tmonth + 1)
-    O2 = np.zeros(Tmonth)
-    O3 = Storage3(x)[1]
-    ev2 = []
-    S2[0] = S2max
-    R3 = x[:Tmonth]
-    R2 = x[Tmonth:Tmonth * 2]
-    Rm = x[5 * Tmonth:Tmonth * 6]
-    j = 0
-    for i in range(Tmonth):
-        Ev2 = Evaporation2(S2[i], j, i)
-        ev2.append(Ev2)
-        S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
-        if S2[i + 1] < S2min:
-            Rm[i] = lb[i + 5 * Tmonth]
-            R2[i] = np.random.rand() * (S2[i] + R3[i] + O3[i] + l2[i] - Rm[i] - Ev2 - S2min - O2[i])
-            S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
-            if R2[i] < 0:
-                R2[i] = lb[i + Tmonth]
-                Rm[i] = 0.98 * (S2[i] + R3[i] + O3[i] + l2[i] - R2[i] - Ev2 - S2min - O2[i])
-                S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
-        else:
-            S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
-        if S2[i + 1] > S2max:
-            if R2[i] < ub[i + Tmonth]:
-                R2[i] = R2[i] + S2[i + 1] - S2max
-                if R2[i] > ub[i + Tmonth]:
-                    O2[i] = R2[i] - ub[i + Tmonth]
-                    R2[i] = ub[i + Tmonth]
-            else:
-                O2[i] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2) - S2max
-            S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
-        else:
-            S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
-        j += 1
-        if j == 12:
-            j = 0
-    return S2, O2, ev2
+	S2 = np.zeros(Tmonth + 1)
+	O2 = np.zeros(Tmonth)
+	O3 = Storage3(x)[1]
+	ev2 = []
+	S2[0] = S2max
+	R3 = x[:Tmonth]
+	R2 = x[Tmonth:Tmonth * 2]
+	Rm = x[5 * Tmonth:Tmonth * 6]
+	j = 0
+	for i in range(Tmonth):
+		Ev2 = Evaporation2(S2[i], j, i)
+		ev2.append(Ev2)
+		S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
+		if S2[i + 1] < S2min:
+			Rm[i] = lb[i + 5 * Tmonth]
+			R2[i] = np.random.rand() * (S2[i] + R3[i] + O3[i] + l2[i] - Rm[i] - Ev2 - S2min - O2[i])
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
+			if R2[i] < 0:
+				R2[i] = lb[i + Tmonth]
+				Rm[i] = 0.98 * (S2[i] + R3[i] + O3[i] + l2[i] - R2[i] - Ev2 - S2min - O2[i])
+				S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
+		else:
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
+		if S2[i + 1] > S2max:
+			if R2[i] < ub[i + Tmonth]:
+				R2[i] = R2[i] + S2[i + 1] - S2max
+				if R2[i] > ub[i + Tmonth]:
+					O2[i] = R2[i] - ub[i + Tmonth]
+					R2[i] = ub[i + Tmonth]
+			else:
+				O2[i] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2) - S2max
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
+		else:
+			S2[i + 1] = S2[i] + R3[i] + O3[i] + l2[i] - (R2[i] + Rm[i] + Ev2 + O2[i])
+		j += 1
+		if j == 12:
+			j = 0
+	return S2, O2, ev2
 
 
 # mass balance for Dudhkoshi
 def Storaged(x):
-    Sd = np.zeros(Tmonth + 1)
-    Od = np.zeros(Tmonth)  # initial overflow all values are zero
-    evd = []
-    Sd[0] = Sdmax
-    R_sk = x[3 * Tmonth:4 * Tmonth]
-    R_dt = x[4 * Tmonth:5 * Tmonth]
-    j = 0
-    for i in range(Tmonth):
-        Evd = Evaporationd(Sd[i], j, i)
-        evd.append(Evd)
-        Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
-        if Sd[i + 1] < Sdmin:
-            R_dt[i] = lb[i + 4 * Tmonth]
-            R_sk[i] = np.random.rand() * (Dk[i] + Sd[i] - Evd - R_dt[i] - Sdmin - Od[i])
-            Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
-            if R_sk[i] < 0:
-                R_sk[i] = 0
-                R_dt[i] = 0.98 * (Dk[i] + Sd[i] - Evd - R_sk[i] - Sdmin - Od[i])
-                Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
-        else:
-            Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
-        if Sd[i + 1] > Sdmax:
-            Od[i] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd) - Sdmax
-            Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
-        else:
-            Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
-        j += 1
-        if j == 12:
-            j = 0
-    return Sd, Od, evd
+	Sd = np.zeros(Tmonth + 1)
+	Od = np.zeros(Tmonth)  # initial overflow all values are zero
+	evd = []
+	Sd[0] = Sdmax
+	R_sk = x[3 * Tmonth:4 * Tmonth]
+	R_dt = x[4 * Tmonth:5 * Tmonth]
+	j = 0
+	for i in range(Tmonth):
+		Evd = Evaporationd(Sd[i], j, i)
+		evd.append(Evd)
+		Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
+		if Sd[i + 1] < Sdmin:
+			R_dt[i] = lb[i + 4 * Tmonth]
+			R_sk[i] = np.random.rand() * (Dk[i] + Sd[i] - Evd - R_dt[i] - Sdmin - Od[i])
+			Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
+			if R_sk[i] < 0:
+				R_sk[i] = 0
+				R_dt[i] = 0.98 * (Dk[i] + Sd[i] - Evd - R_sk[i] - Sdmin - Od[i])
+				Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
+		else:
+			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
+		if Sd[i + 1] > Sdmax:
+			Od[i] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd) - Sdmax
+			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
+		else:
+			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
+		j += 1
+		if j == 12:
+			j = 0
+	return Sd, Od, evd
 
 
 # mass balance for sunkoshi 1
 def Storage1(x):
-    S1 = np.zeros(Tmonth + 1)
-    O1 = np.zeros(Tmonth)  # initial overflow all values are zero
-    O2 = Storage2(x)[1]
-    Od = Storaged(x)[1]
-    ev1 = []
-    S1[0] = S1max
-    R1 = x[2 * Tmonth:3 * Tmonth]
-    R_dt = x[4 * Tmonth:5 * Tmonth]
-    R2 = x[Tmonth:Tmonth * 2]
-    j = 0
-    for i in range(Tmonth):
-        Ev1 = Evaporation1(S1[i], j, i)
-        ev1.append(Ev1)
-        S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
-        if S1[i + 1] < S1min:
-            R1[i] = np.random.rand() * (l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - Ev1 - O1[i] - S1min)
-            S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
-        else:
-            S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
-        if S1[i + 1] > S1max:
-            if R1[i] < ub[i + 2 * Tmonth]:
-                R1[i] = R1[i] + S1[i + 1] - S1max
-                if R1[i] > ub[i + 2 * Tmonth]:
-                    O1[i] = x[i + 2 * Tmonth] - ub[i + 2 * Tmonth]
-                    R1[i] = ub[i + 2 * Tmonth]
-            else:
-                O1[i] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1) - S1max
-            S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
-        else:
-            S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
-        j += 1
-        if j == 12:
-            j = 0
-    return S1, O1, ev1
+	S1 = np.zeros(Tmonth + 1)
+	O1 = np.zeros(Tmonth)  # initial overflow all values are zero
+	O2 = Storage2(x)[1]
+	Od = Storaged(x)[1]
+	ev1 = []
+	S1[0] = S1max
+	R1 = x[2 * Tmonth:3 * Tmonth]
+	R_dt = x[4 * Tmonth:5 * Tmonth]
+	R2 = x[Tmonth:Tmonth * 2]
+	j = 0
+	for i in range(Tmonth):
+		Ev1 = Evaporation1(S1[i], j, i)
+		ev1.append(Ev1)
+		S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
+		if S1[i + 1] < S1min:
+			R1[i] = np.random.rand() * (l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - Ev1 - O1[i] - S1min)
+			S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
+		else:
+			S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
+		if S1[i + 1] > S1max:
+			if R1[i] < ub[i + 2 * Tmonth]:
+				R1[i] = R1[i] + S1[i + 1] - S1max
+				if R1[i] > ub[i + 2 * Tmonth]:
+					O1[i] = x[i + 2 * Tmonth] - ub[i + 2 * Tmonth]
+					R1[i] = ub[i + 2 * Tmonth]
+			else:
+				O1[i] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1) - S1max
+			S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
+		else:
+			S1[i + 1] = l1_[i] + S1[i] + R2[i] + O2[i] + R_dt[i] + Od[i] - (R1[i] + Ev1 + O1[i])
+		j += 1
+		if j == 12:
+			j = 0
+	return S1, O1, ev1
 
 
 """
@@ -813,62 +813,62 @@ def Storage1(x):
 
 # Energy output per month for Sunkoshi 3
 def E3(x):  # Calculates energy GWH for each months
-    e3 = np.zeros(Tmonth)
-    H3 = Height3(x)
-    R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
-    for i in range(Tmonth):
-        e3[i] = g * ita_S3 * R3[i] * H3[i] / 1000
-    return e3
+	e3 = np.zeros(Tmonth)
+	H3 = Height3(x)
+	R3 = (x[:Tmonth] * 10 ** 6) / (Days * 24 * 3600)
+	for i in range(Tmonth):
+		e3[i] = g * ita_S3 * R3[i] * H3[i] / 1000
+	return e3
 
 
 # Energy output per month for Sunkoshi 2
 def E2(x):  # Calculates energy GWH for each months
-    e2 = np.zeros(Tmonth)
-    H2 = Height2(x)
-    R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
-    for i in range(Tmonth):
-        e2[i] = g * ita_S2 * R2[i] * H2[i] / 1000
-    return e2
+	e2 = np.zeros(Tmonth)
+	H2 = Height2(x)
+	R2 = (x[Tmonth:Tmonth * 2] * 10 ** 6) / (Days * 24 * 3600)
+	for i in range(Tmonth):
+		e2[i] = g * ita_S2 * R2[i] * H2[i] / 1000
+	return e2
 
 
 # Energy output per month for Sunkoshi 1
 def E1(x):
-    e1 = np.zeros(Tmonth)
-    H1 = Height1(x)
-    R1 = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
-    for i in range(Tmonth):
-        e1[i] = ((g * ita_S1 * R1[i] * H1[i] / 1000) * Days[i] * 24) / 1000
-    return e1
+	e1 = np.zeros(Tmonth)
+	H1 = Height1(x)
+	R1 = (x[2 * Tmonth:Tmonth * 3] * 10 ** 6) / (Days * 24 * 3600)
+	for i in range(Tmonth):
+		e1[i] = ((g * ita_S1 * R1[i] * H1[i] / 1000) * Days[i] * 24) / 1000
+	return e1
 
 
 # Energy output per month for Sunkoshi Marine Diversion
 def Em(x):
-    emd = np.zeros(Tmonth)
-    Rm = (x[5 * Tmonth:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
-    for i in range(Tmonth):
-        emd[i] = g * ita_MD * Rm[i] * Hm / 1000
-    return emd
+	emd = np.zeros(Tmonth)
+	Rm = (x[5 * Tmonth:Tmonth * 6] * 10 ** 6) / (Days * 24 * 3600)
+	for i in range(Tmonth):
+		emd[i] = g * ita_MD * Rm[i] * Hm / 1000
+	return emd
 
 
 # Energy output per month for Dudhkoshi
 #  Dam toe Powerhouse
 def E_dt(x):
-    e_dt = np.zeros(Tmonth)
-    H_dt = Height_dt(x)
-    R_dt = (x[4 * Tmonth:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
-    for i in range(Tmonth):
-        e_dt[i] = g * ita_dt * R_dt[i] * H_dt[i] / 1000
-    return e_dt
+	e_dt = np.zeros(Tmonth)
+	H_dt = Height_dt(x)
+	R_dt = (x[4 * Tmonth:Tmonth * 5] * 10 ** 6) / (Days * 24 * 3600)
+	for i in range(Tmonth):
+		e_dt[i] = g * ita_dt * R_dt[i] * H_dt[i] / 1000
+	return e_dt
 
 
 #  Sunkoshi Powerhouse
 def E_sk(x):
-    e_sk = np.zeros(Tmonth)
-    H_sk = Height_sk(x)
-    R_sk = (x[3 * Tmonth:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
-    for i in range(Tmonth):
-        e_sk[i] = g * ita_sk * R_sk[i] * H_sk[i] / 1000
-    return e_sk
+	e_sk = np.zeros(Tmonth)
+	H_sk = Height_sk(x)
+	R_sk = (x[3 * Tmonth:Tmonth * 4] * 10 ** 6) / (Days * 24 * 3600)
+	for i in range(Tmonth):
+		e_sk[i] = g * ita_sk * R_sk[i] * H_sk[i] / 1000
+	return e_sk
 
 
 """
@@ -881,53 +881,53 @@ def E_sk(x):
 
 # Height for Sunkoshi-3
 def Height3(x):
-    H3 = np.zeros(Tmonth)
-    S3 = Storage3(x)[0]
-    for i in range(Tmonth):
-        H3[i] = Interpolate(Ex3, (S3[i] + S3[i + 1]) / 2, c='Elev')
-        H3[i] = H3[i] - S3_effective_twl
-    return H3
+	H3 = np.zeros(Tmonth)
+	S3 = Storage3(x)[0]
+	for i in range(Tmonth):
+		H3[i] = Interpolate(Ex3, (S3[i] + S3[i + 1]) / 2, c='Elev')
+		H3[i] = H3[i] - S3_effective_twl
+	return H3
 
 
 # Height for Sunkoshi-2
 def Height2(x):
-    H2 = np.zeros(Tmonth)
-    S2 = Storage2(x)[0]
-    for i in range(Tmonth):
-        H2[i] = Interpolate(Ex2, (S2[i] + S2[i + 1]) / 2, c='Elev')
-        H2[i] = H2[i] - S2_effective_twl
-    return H2
+	H2 = np.zeros(Tmonth)
+	S2 = Storage2(x)[0]
+	for i in range(Tmonth):
+		H2[i] = Interpolate(Ex2, (S2[i] + S2[i + 1]) / 2, c='Elev')
+		H2[i] = H2[i] - S2_effective_twl
+	return H2
 
 
 # Height for Sunkoshi-1
 def Height1(x):
-    H1 = np.zeros(Tmonth)
-    S1 = Storage1(x)[0]
-    for i in range(Tmonth):
-        H1[i] = Interpolate(Ex1, (S1[i] + S1[i + 1]) / 2, c='Elev')
-        H1[i] = H1[i] - S1_effective_twl
-    return H1
+	H1 = np.zeros(Tmonth)
+	S1 = Storage1(x)[0]
+	for i in range(Tmonth):
+		H1[i] = Interpolate(Ex1, (S1[i] + S1[i + 1]) / 2, c='Elev')
+		H1[i] = H1[i] - S1_effective_twl
+	return H1
 
 
 # Height for Dudhkoshi
 #  Dam toe Powerhouse
 def Height_dt(x):
-    H_dt = np.zeros(Tmonth)
-    Sd = Storaged(x)[0]
-    for i in range(Tmonth):
-        H_dt[i] = Interpolate(Exd, (Sd[i] + Sd[i + 1]) / 2, c='Elev')
-        H_dt[i] = H_dt[i] - Dt_effective_twl
-    return H_dt
+	H_dt = np.zeros(Tmonth)
+	Sd = Storaged(x)[0]
+	for i in range(Tmonth):
+		H_dt[i] = Interpolate(Exd, (Sd[i] + Sd[i + 1]) / 2, c='Elev')
+		H_dt[i] = H_dt[i] - Dt_effective_twl
+	return H_dt
 
 
 #  Sunkoshi Powerhouse
 def Height_sk(x):
-    H_sk = np.zeros(Tmonth)
-    Sd = Storaged(x)[0]
-    for i in range(Tmonth):
-        H_sk[i] = Interpolate(Exd, (Sd[i] + Sd[i + 1]) / 2, c='Elev')
-        H_sk[i] = H_sk[i] - SK_effective_twl
-    return H_sk
+	H_sk = np.zeros(Tmonth)
+	Sd = Storaged(x)[0]
+	for i in range(Tmonth):
+		H_sk[i] = Interpolate(Exd, (Sd[i] + Sd[i + 1]) / 2, c='Elev')
+		H_sk[i] = H_sk[i] - SK_effective_twl
+	return H_sk
 
 
 """ 
@@ -944,27 +944,27 @@ def Height_sk(x):
 
 
 def Evaporation3(a, b, d):  # Returns potential evaporation for each months its unit is MCM
-    S3a = Interpolate(Ex3, a, c='SArea')
-    Eva = (ev[b] * S3a) * Days[d] / 10 ** 9
-    return Eva
+	S3a = Interpolate(Ex3, a, c='SArea')
+	Eva = (ev[b] * S3a) * Days[d] / 10 ** 9
+	return Eva
 
 
 def Evaporation2(a, b, d):  # Returns potential evaporation for each months its unit is MCM
-    S2a = Interpolate(Ex2, a, c='SArea')
-    Eva = (ev[b] * S2a) * Days[d] / 10 ** 9
-    return Eva
+	S2a = Interpolate(Ex2, a, c='SArea')
+	Eva = (ev[b] * S2a) * Days[d] / 10 ** 9
+	return Eva
 
 
 def Evaporation1(a, b, d):
-    S1a = Interpolate(Ex1, a, c='SArea')
-    Eva = (ev[b] * S1a) * Days[d] / 10 ** 9
-    return Eva
+	S1a = Interpolate(Ex1, a, c='SArea')
+	Eva = (ev[b] * S1a) * Days[d] / 10 ** 9
+	return Eva
 
 
 def Evaporationd(a, b, d):
-    Dka = Interpolate(Exd, a, c='SArea')
-    Evd = (ev[b] * Dka) * Days[d] / 10 ** 9
-    return Evd
+	Dka = Interpolate(Exd, a, c='SArea')
+	Evd = (ev[b] * Dka) * Days[d] / 10 ** 9
+	return Evd
 
 
 """                          
@@ -980,9 +980,9 @@ def Evaporationd(a, b, d):
 # all constrains required
 # all constrains required
 def mycons(x):
-    # dry_percent = Dry_energy_check(x)
-    cons = []
-    return cons
+	# dry_percent = Dry_energy_check(x)
+	cons = []
+	return cons
 
 
 # calling pso function in pso.py
@@ -998,164 +998,31 @@ print('    myfunc: {}'.format(fopt))
 
 print('The optimum releases for each stations are:')
 
-Release_Sunkoshi_1 = []
-Release_Sunkoshi_2 = []
-Release_Sunkoshi_3 = []
-Release_Sunkoshi_MD = []
-Release_Dudhkoshi_sk = []
-Release_Dudhkoshi_dt = []
+Release_Sunkoshi_1 = xopt[2 * Tmonth:Tmonth * 3]
+Release_Sunkoshi_2 = xopt[Tmonth:Tmonth * 2]
+Release_Sunkoshi_3 = xopt[:Tmonth]
+Release_Sunkoshi_MD = xopt[5 * Tmonth:Tmonth * 6]
+Release_Dudhkoshi_sk = xopt[3 * Tmonth:Tmonth * 4]
+Release_Dudhkoshi_dt = xopt[4 * Tmonth:Tmonth * 5]
 
-Storage_Sunkoshi_1 = []
-Storage_Sunkoshi_2 = []
-Storage_Sunkoshi_3 = []
-Storage_Dudhkoshi = []
-
-Overflow_Sunkoshi_1 = []
-Overflow_Sunkoshi_2 = []
-Overflow_Sunkoshi_3 = []
-Overflow_Dudhkoshi = []
-
-Dry_energy_percent_for_S3_Annually = []
-Dry_energy_percent_for_S2_Annually = []
-Dry_energy_percent_for_S1_Annually = []
-Dry_energy_percent_for_MD_Annually = []
-Dry_energy_percent_for_sk_Annually = []
-Dry_energy_percent_for_dt_Annually = []
-
-Energy_Sunkoshi_1 = []
-Energy_Sunkoshi_2 = []
-Energy_Sunkoshi_3 = []
-Energy_Sunkoshi_MD = []
-Energy_Dudhkoshi_sk = []
-Energy_Dudhkoshi_dt = []
-
-Fitness_value = fopt
-
-Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S2', 'Dry_energy percent Total for S1', 'Dry_energy percent Total for SK PH', 'Dry_energy percent Total for DT PH', 'Dry_energy percent Total for MD']
-
-# Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25} {:<25} {:<25} {:<25} {:<25}".format('Year', 'Months', 'Release at S3', 'Release at S2', 'Release at S1', 'Release at DK-sk', 'Release at DK-dt', 'Release at Smd'))
-j = -1
-month = "error"
-for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 150)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
-
-    # print('Year/', 'Months /', 'Release at S3/', 'Release at S2/', 'Release at S1/', 'Release at Smd/', 'Release at Skd/')
-    Release_Sunkoshi_3.append(xopt[i + 0])
-    Release_Sunkoshi_2.append(xopt[i + Tmonth])
-    Release_Sunkoshi_1.append(xopt[i + 2 * Tmonth])
-    Release_Dudhkoshi_sk.append(xopt[i + 3 * Tmonth])
-    Release_Dudhkoshi_dt.append(xopt[i + 4 * Tmonth])
-    Release_Sunkoshi_MD.append(xopt[i + 5 * Tmonth])
-
-    print("{:<7} {:<7} {:<25} {:<25} {:<25} {:<25} {:<25} {:<25}".format(Fyear + j, month, xopt[i + 0], xopt[i + Tmonth], xopt[i + Tmonth * 2], xopt[i + Tmonth * 3], xopt[i + Tmonth * 4], xopt[i + Tmonth * 5]))
-
-# Storage for optimized Releases
-print("{:<10} {:<10} {:<25} {:<25} {:<25} {:<25}".format('Year', 'Months', 'Storage at S3', 'Storage at S2', 'Storage at S1', 'Storage at DK'))
 Storage_for_S3, Overflow_for_S3, Evaporation_loss_S3 = Storage3(xopt)
+Storage_for_S3 = Storage_for_S3[:-1]
 Storage_for_S2, Overflow_for_S2, Evaporation_loss_S2 = Storage2(xopt)
+Storage_for_S2 = Storage_for_S2[:-1]
 Storage_for_DK, Overflow_for_DK, Evaporation_loss_Dk = Storaged(xopt)
+Storage_for_DK = Storage_for_DK[:-1]
 Storage_for_S1, Overflow_for_S1, Evaporation_loss_S1 = Storage1(xopt)
-j = -1
-for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 100)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
+Storage_for_S1 = Storage_for_S1[:-1]
 
-    Storage_Sunkoshi_3.append(Storage_for_S3[i])
-    Storage_Sunkoshi_2.append(Storage_for_S2[i])
-    Storage_Dudhkoshi.append(Storage_for_DK[i])
-    Storage_Sunkoshi_1.append(Storage_for_S1[i])
+Storage_Sunkoshi_1 = Storage_for_S1
+Storage_Sunkoshi_2 = Storage_for_S2
+Storage_Sunkoshi_3 = Storage_for_S3
+Storage_Dudhkoshi = Storage_for_DK
 
-    print("{:<10} {:<10} {:<25} {:<25} {:<25} {:<25}".format(Fyear + j, month, Storage_for_S3[i], Storage_for_S2[i], Storage_for_S1[i], Storage_for_DK[i]))
-
-# Overflow for Optimized Releases
-print("{:<10} {:<10} {:<25} {:<25} {:<25} {:<25}".format('Year', 'Months', 'Overflow at S3', 'Overflow at S2', 'Overflow at S1', 'Overflow at Dk'))
-j = -1
-for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 100)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
-
-    Overflow_Sunkoshi_3.append(Overflow_for_S3[i])
-    Overflow_Sunkoshi_2.append(Overflow_for_S2[i])
-    Overflow_Dudhkoshi.append(Overflow_for_DK[i])
-    Overflow_Sunkoshi_1.append(Overflow_for_S1[i])
-    print("{:<10} {:<10} {:<25} {:<25} {:<25} {:<25}".format(Fyear + j, month, Overflow_for_S3[i], Overflow_for_S2[i], Overflow_for_S1[i], Overflow_for_DK[i]))
-
-# Energy generation for Optimized Releases
-print("{:<7} {:<7} {:<25} {:<25} {:<25} {:<25} {:<25}".format('Year', 'Months', 'Energy at S3', 'Energy at S2', 'Energy at S1', 'Energy at Smd', 'Energy at Skd'))
+Overflow_Sunkoshi_1 = Overflow_for_S1
+Overflow_Sunkoshi_2 = Overflow_for_S2
+Overflow_Sunkoshi_3 = Overflow_for_S3
+Overflow_Dudhkoshi = Overflow_for_DK
 
 Day_energy_percent_for_S3_total = Dry_energy_checkT(xopt, c='S3')
 Day_energy_percent_for_S2_total = Dry_energy_checkT(xopt, c='S2')
@@ -1164,62 +1031,23 @@ Day_energy_percent_for_sk_total = Dry_energy_checkT(xopt, c='sk')
 Day_energy_percent_for_dt_total = Dry_energy_checkT(xopt, c='dt')
 Day_energy_percent_for_MD_total = Dry_energy_checkT(xopt, c='MD')
 
-Day_energy_percent_for_S3_Annually = Dry_energy_checkA(xopt, c='S3')
-Day_energy_percent_for_S2_Annually = Dry_energy_checkA(xopt, c='S2')
-Day_energy_percent_for_S1_Annually = Dry_energy_checkA(xopt, c='S1')
-Day_energy_percent_for_sk_Annually = Dry_energy_checkA(xopt, c='sk')
-Day_energy_percent_for_dt_Annually = Dry_energy_checkA(xopt, c='dt')
-Day_energy_percent_for_MD_Annually = Dry_energy_checkA(xopt, c='MD')
+Dry_energy_percent_for_S3_Annually = Dry_energy_checkA(xopt, c='S3')
+Dry_energy_percent_for_S2_Annually = Dry_energy_checkA(xopt, c='S2')
+Dry_energy_percent_for_S1_Annually = Dry_energy_checkA(xopt, c='S1')
+Dry_energy_percent_for_sk_Annually = Dry_energy_checkA(xopt, c='sk')
+Dry_energy_percent_for_dt_Annually = Dry_energy_checkA(xopt, c='dt')
+Dry_energy_percent_for_MD_Annually = Dry_energy_checkA(xopt, c='MD')
 
-Energy_for_S3 = E3(xopt)
-Energy_for_S2 = E2(xopt)
-Energy_for_S1 = E1(xopt)
-Energy_for_sk = E_sk(xopt)
-Energy_for_dt = E_dt(xopt)
-Energy_for_MD = Em(xopt)
+Energy_Sunkoshi_3 = E3(xopt)
+Energy_Sunkoshi_2 = E2(xopt)
+Energy_Sunkoshi_1 = E1(xopt)
+Energy_Dudhkoshi_sk = E_sk(xopt)
+Energy_Dudhkoshi_dt = E_dt(xopt)
+Energy_Sunkoshi_MD = Em(xopt)
 
-j = -1
-for i in range(Tmonth):
-    if i % 12 == 0 or i == 0:
-        month = "Jan"
-        print('-' * 150)
-        j = j + 1
-    elif i % 12 == 1:
-        month = "Feb"
-    elif i % 12 == 2:
-        month = "Mar"
-    elif i % 12 == 3:
-        month = "Apr"
-    elif i % 12 == 4:
-        month = "May"
-    elif i % 12 == 5:
-        month = "Jun"
-    elif i % 12 == 6:
-        month = "Jul"
-    elif i % 12 == 7:
-        month = "Aug"
-    elif i % 12 == 8:
-        month = "Sep"
-    elif i % 12 == 9:
-        month = "Oct"
-    elif i % 12 == 10:
-        month = "Nov"
-    elif i % 12 == 11:
-        month = "Dec"
-        Dry_energy_percent_for_S3_Annually.append(Day_energy_percent_for_S3_Annually[j])
-        Dry_energy_percent_for_S2_Annually.append(Day_energy_percent_for_S2_Annually[j])
-        Dry_energy_percent_for_S1_Annually.append(Day_energy_percent_for_S1_Annually[j])
-        Dry_energy_percent_for_sk_Annually.append(Day_energy_percent_for_sk_Annually[j])
-        Dry_energy_percent_for_dt_Annually.append(Day_energy_percent_for_dt_Annually[j])
-        Dry_energy_percent_for_MD_Annually.append(Day_energy_percent_for_MD_Annually[j])
+Fitness_value = fopt
 
-    Energy_Sunkoshi_3.append(Energy_for_S3[i])
-    Energy_Sunkoshi_2.append(Energy_for_S2[i])
-    Energy_Sunkoshi_1.append(Energy_for_S1[i])
-    Energy_Dudhkoshi_sk.append(Energy_for_sk[i])
-    Energy_Dudhkoshi_dt.append(Energy_for_dt[i])
-    Energy_Sunkoshi_MD.append(Energy_for_MD[i])
-    print("{:<7} {:<7} {:<25} {:<25} {:<25} {:<25} {:<25} {:<25}".format(Fyear + j, month, Energy_for_S3[i], Energy_for_S2[i], Energy_for_S1[i], Energy_for_sk[i], Energy_for_dt[i], Energy_for_MD[i]))
+Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S2', 'Dry_energy percent Total for S1', 'Dry_energy percent Total for SK PH', 'Dry_energy percent Total for DT PH', 'Dry_energy percent Total for MD']
 
 '''
  Writing to Excel
@@ -1314,12 +1142,12 @@ Energy['Energy_Sunkoshi_1'] = Energy_Sunkoshi_1
 Energy['Energy_Sunkoshi_MD'] = Energy_Sunkoshi_MD
 
 Day_energy_percent_A['Date'] = Date1
-Day_energy_percent_A['Dry Energy percent S3'] = Day_energy_percent_for_S3_Annually
-Day_energy_percent_A['Dry Energy percent S2'] = Day_energy_percent_for_S2_Annually
-Day_energy_percent_A['Dry Energy percent sk'] = Day_energy_percent_for_sk_Annually
-Day_energy_percent_A['Dry Energy percent dt'] = Day_energy_percent_for_dt_Annually
-Day_energy_percent_A['Dry Energy percent S1'] = Day_energy_percent_for_S1_Annually
-Day_energy_percent_A['Dry Energy percent MD'] = Day_energy_percent_for_MD_Annually
+Day_energy_percent_A['Dry Energy percent S3'] = Dry_energy_percent_for_S3_Annually
+Day_energy_percent_A['Dry Energy percent S2'] = Dry_energy_percent_for_S2_Annually
+Day_energy_percent_A['Dry Energy percent sk'] = Dry_energy_percent_for_sk_Annually
+Day_energy_percent_A['Dry Energy percent dt'] = Dry_energy_percent_for_dt_Annually
+Day_energy_percent_A['Dry Energy percent S1'] = Dry_energy_percent_for_S1_Annually
+Day_energy_percent_A['Dry Energy percent MD'] = Dry_energy_percent_for_MD_Annually
 
 Parameters.to_excel(PSO_Outputs, sheet_name='Parameters', index=False)
 Outputs.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
