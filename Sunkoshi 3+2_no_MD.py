@@ -439,9 +439,8 @@ def Storage_check(Si, Smin):
 	if Si > Smin:
 		return Si, 0
 
-	# mass balance for sunkoshi 3
 
-
+# mass balance for sunkoshi 3
 def Storage3(x):  # Function containing mass balance equation and correction for illegal storage, this function changes values sent by pso to make it feasible
 	S3 = np.zeros(Tmonth + 1)  # Returns the storage values and over flow values for all months
 	O3 = np.zeros(Tmonth)  # initial overflow all values are zero
@@ -855,7 +854,6 @@ Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)
 Time = pd.DataFrame()
 Time['Time'] = [(time.time() - start_time)]
 Time.to_excel(PSO_Outputs, sheet_name='Elapsed Time', index=False)
-PSO_Outputs.save()
 
 PSO_Outputs.save()
 

@@ -411,17 +411,16 @@ def Storaged(x):
 		Sd_temp = 0
 		Sd_temp2 = 0
 		Evd = Evaporationd(Sd[i], j, i)
-		Sd_temp = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd)
-		if Sd_temp < Sdmin:
-			x[i + Tmonth] = MDR
-			x[i] = np.random.rand() * (Dk[i] + Sd[i] - Evd - MDR - Sdmin)
-			Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + MDR)
+		Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
+		while Sd[i + 1] < Sdmin:
+			x[i + Tmonth] = lb[i + Tmonth]
+			x[i] = np.random.rand() * (Dk[i] + Sd[i] - Evd - R_dt[i] - Sdmin - Od[i])
+			Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
 		else:
-			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd)
-		Sd_temp2 = Sd[i + 1]
-		if Sd_temp2 > Sdmax:
+			Sd[i + 1] = Dk[i] + Sd[i] - (R_sk[i] + R_dt[i] + Evd + Od[i])
+		if Sd[i + 1] > Sdmax:
 			if x[i] < ub[i]:
-				x[i] = x[i] + Sd_temp2 - Sdmax
+				x[i] = x[i] + Sd[i + 1] - Sdmax
 				if x[i] > ub[i]:
 					x[i + Tmonth] = x[i] - ub[i]
 					if x[i + Tmonth] > ub[i + Tmonth]:
@@ -778,7 +777,6 @@ pso_data2.to_excel(PSO_Outputs, sheet_name='iter_vs_Global_best_fitness', index=
 Time = pd.DataFrame()
 Time['Time'] = [(time.time() - start_time)]
 Time.to_excel(PSO_Outputs, sheet_name='Elapsed Time', index=False)
-PSO_Outputs.save()
 
 PSO_Outputs.save()
 
