@@ -125,7 +125,7 @@ S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED r
 
 #  Sunkoshi-2
 ita_S2 = 0.86  # Efficiency of Hydro-Electric plant of Sunkoshi-2 (from DOED report)
-power2 = 1978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
+power2 = 978  # Installed Capacity in Megawatt of Sunkoshi-2 (from DOED report)
 S2max = 1806.892334  # h = 535   # Sunkoshi-2 maximum Storage volume in MCM at masl 560 m (from DOED report)
 S2min = 776.999601  # h = 505   # Sunkoshi-2 minimum Storage volume in MCM at masl 510 m (from DOED report)
 S2_effective_twl = 424.6  # Sunkoshi-2 turbine level in masl m (from DOED report)

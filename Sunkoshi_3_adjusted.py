@@ -109,6 +109,7 @@ S3max = 1769.286774  # h = 700  # Sunkoshi-3 maximum Storage volume in MCM at ma
 S3min = 769.457152  # h = 660   # Sunkoshi-3 minimum Storage volume in MCM at masl 660 m (from DOED report)
 S3_effective_twl = 535  # Sunkoshi-3 turbine level in masl m (from DOED report)
 S3_rated_discharge = 490  # Sunkoshi-3 total rated discharge in m3/s(from DOED report)
+S3_Adjusted_discharge = 647.65  # Discharge required to produced installed capacity at minimum net head
 lower_release = 67
 """
    Environment
@@ -156,51 +157,51 @@ ub = np.zeros(T_O_V)  # initial upper bounds for releases all values are zero
 for i in range(0, T_O_V):
 	if i % 12 == 0 or i == 0:
 		month = "Jan"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 1:
 		month = "Feb"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 2:
 		month = "Mar"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 3:
 		month = "Apr"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 4:
 		month = "May"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 5:
 		month = "Jun"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 6:
 		month = "Jul"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 7:
 		month = "Aug"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 8:
 		month = "Sep"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 9:
 		month = "Oct"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 10:
 		month = "Nov"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 	elif i % 12 == 11:
 		month = "Dec"
-		ub[i] = (S3_rated_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
+		ub[i] = (S3_Adjusted_discharge * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 		lb[i] = (lower_release * Days[i] * 24 * 3600) / 10 ** 6  # bonds for Sunkoshi-3
 
 """
@@ -331,8 +332,11 @@ def dry_energy(z_dry, z_wet):
 
 # all constrains required
 def mycons(x):
-	# dry_percent = Dry_energy_check(x)
+	e = E3(x)
 	cons = []
+	for i in range(Tmonth):
+		a = (power3 - ((e[i] * 1000) / (Days[i] * 24)))
+		cons.append(a)
 	return cons
 
 
@@ -424,7 +428,7 @@ def Evaporation3(a, b, d):
 
 # calling pso function in pso.py
 
-xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, f_ieqcons=mycons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 """
   Printing and Saving Outputs

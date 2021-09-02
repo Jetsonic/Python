@@ -32,24 +32,29 @@ Tyear = Lyear - Fyear + 1
 
 I3 = Inflow['Pachuwarghat'] + Inflow['Local Inflow at Sunkoshi III']
 
-l2 = Inflow['Local Inflow at Sunkoshi II']
+l2 = Inflow['Local Inflow at Sunkoshi II']+Inflow['Local Inflow at Khurkot']
 
 l1 = Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
 l1_ = Inflow['Sangutar'] + Inflow['Local Inflow at Sunkoshi I']
 
-Is1 = Inflow['Khurkot'] + Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
-Is2 = Inflow['Khurkot']
+Is1 = Inflow['Khurkot'] + Inflow['Local Inflow at Sunkoshi II'] + Inflow['Sangutar'] + Inflow['Rabuwa Bazar'] + Inflow['Local Inflow at Sunkoshi I']
+Is2 = Inflow['Khurkot'] + Inflow['Local Inflow at Sunkoshi II']
 Dk = Inflow['Rabuwa Bazar']
+l_Ko = Inflow['Local Inflow at Chatara']
+Ko = Inflow['Chatara']
 
 Days = Inflow['Days']
 
-Demand = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand')
-Dmd = Demand['DEMAND']
+Demand_MD = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand_MD')
+Dmd_MD = Demand_MD['DEMAND']
+Demand_KD = pd.read_excel(r'pso_data(1985-2014).xlsx', sheet_name='Irrigation demand_KD')
+Dmd_KD = Demand_KD['DEMAND']
 
 Ex1 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI1')
 Ex2 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI2')
 Ex3 = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='SUNKOSHI3')
 Exd = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='Dudhkoshi1')
+Ex_Ko = pd.read_excel(r'Sunkoshi.xlsx', sheet_name='Saptakoshi')
 
 
 def get_interval(d, a):
