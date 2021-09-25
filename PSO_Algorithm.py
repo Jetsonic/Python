@@ -116,7 +116,6 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 		# Calculate the objective's value at the current particle's
 		fp[i] = obj(p[i, :])
 
-
 		# At the start, there may not be any feasible starting point, so just
 		# give it a temporary "best" point since it's likely to change
 		if i == 0:
@@ -132,7 +131,7 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 		# Initialize the particle's velocity
 		v[i, :] = vlow + np.random.rand(D) * (vhigh - vlow)
 
-	# Iterate until termination criterion met ##################################
+	# Iterate until termination criterion met
 	it = 1
 	while it <= maxiter:
 		print("Iteration Number:", it)

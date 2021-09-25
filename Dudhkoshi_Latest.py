@@ -13,7 +13,7 @@ start_time = time.time()
      pip install numpy
      pip install pandas
      Make sure data_pso python file is in same folder as this file.
-     
+
    Things to note.
    ===============
      Make sure data_pso python file is in same folder as this file.
@@ -264,7 +264,7 @@ Objective function
   ---------------------------
     Values that are indexed in range [0-Tmonth] are stored in Rsk sunkoshi powerhouse release
 	Values that are indexed in range [Tmonth-2*Tmonth] are stored in Rdt dam toe powerhouse release
-	
+
   Here the value of releases are in MCM per month.
   Fitness function gives the total amount energy potential that can be generated when input parameters and optimized released are used as operation policy.
 """
@@ -385,7 +385,7 @@ def dry_energy(z_dry, z_wet):
          then,S_(t) = S_max
          and,Overflow[O_(t)] = S_(t) - S_max
          Otherwise Overflow[O_(t)] = 0
-         
+
          Constrain for maximum energy is also given.
          constrains for irrigation demand can be addressed in [ld - ub] section.
 
@@ -413,7 +413,7 @@ def Storaged(x):
 		evd.append(Evd)
 		Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
 		if Sd[i + 1] < Sdmin:
-			R_dt[i] = lb[i+Tmonth]
+			R_dt[i] = lb[i + Tmonth]
 			R_sk[i] = np.random.rand() * (Dk[i] + Sd[i] - Evd - R_dt[i] - Sdmin - Od[i])
 			Sd[i + 1] = Dk[i] + Sd[i] - (R_dt[i] + R_sk[i] + Evd + Od[i])
 			if R_sk[i] < 0:
@@ -535,7 +535,7 @@ print('The optimum releases for each stations are:')
 Release_Dudhkoshi_sk = xopt[:Tmonth]
 Release_Dudhkoshi_dt = xopt[Tmonth:Tmonth * 2]
 
-Storage_for_DK, Overflow_for_DK,Evaporation_loss_DK = Storaged(xopt)
+Storage_for_DK, Overflow_for_DK, Evaporation_loss_DK = Storaged(xopt)
 Storage_for_DK = Storage_for_DK[:-1]
 Storage_Dudhkoshi = Storage_for_DK
 Overflow_Dudhkoshi = Overflow_for_DK
