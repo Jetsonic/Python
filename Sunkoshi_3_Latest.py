@@ -54,14 +54,14 @@ start_time = time.time()
         (Default: False)
 
 """
-swarmsize = 100
+swarmsize = 8
 wmax = 1
 wmin = 1
 C1 = 1
 C2 = 0.5
 X = 0.9
 pem = 0.3
-maxiter = 100
+maxiter = 1
 minstep = 1e-8
 minfunc = 1e-8
 """"
@@ -231,11 +231,12 @@ def fitness(x):
 	H3 = Height3(x)
 	R3 = (x * 10 ** 6) / (Days * 24 * 3600)
 	for i in range(Tmonth):
+		p = (g * ita_S3 * R3[i] * H3[i]) / 1000
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
-			p_dry = (g * ita_S3 * R3[i] * H3[i]) / 1000 if (g * ita_S3 * R3[i] * H3[i]) / 1000 <= power3 else power3
+			p_dry = p if p <= power3 else power3
 			z_dry = 1 - (p_dry / power3)
 		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
-			p_wet = (g * ita_S3 * R3[i] * H3[i]) / 1000 if (g * ita_S3 * R3[i] * H3[i]) / 1000 <= power3 else power3
+			p_wet = p if p <= power3 else power3
 			z_wet = 1 - (p_wet / power3)
 		Total = z_dry - z_wet
 		z_dry = 0
@@ -380,17 +381,17 @@ def Storage3(x):  # Function containing mass balance equation and correction for
 # Energy output per month for Sunkoshi 3
 def E3(x):
 	e3 = np.zeros(Tmonth)  # initial Energy all values are zero
-	p = np.zeros(Tmonth)
+	p3 = np.zeros(Tmonth)
 	H3 = Height3(x)
 	R3 = (x * 10 ** 6) / (Days * 24 * 3600)
 	Q3 = np.zeros(Tmonth)
 	Sp3 = np.zeros(Tmonth)
 	for i in range(Tmonth):
-		p[i] = g * ita_S3 * R3[i] * H3[i] / 1000 if (g * ita_S3 * R3[i] * H3[i] / 1000) <= power3 else power3
-		e3[i] = (p[i] * Days[i] * 24) / 1000
-		Q3[i] = (p[i] / (g * ita_S3 * H3[i]) * 1000)
+		p3[i] = g * ita_S3 * R3[i] * H3[i] / 1000 if (g * ita_S3 * R3[i] * H3[i] / 1000) <= power3 else power3
+		e3[i] = (p3[i] * Days[i] * 24) / 1000
+		Q3[i] = (p3[i] / (g * ita_S3 * H3[i]) * 1000)
 		Sp3[i] = ((R3[i] - Q3[i])*Days[i] * 24 * 3600) / 10**6 if Q3[i] <= R3[i] else 0
-	return e3, Q3, Sp3, p
+	return e3, Q3, Sp3, p3
 
 
 """
@@ -464,7 +465,7 @@ Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'm
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('S3.5.xlsx')
+PSO_Outputs = pd.ExcelWriter('S3.t.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs = pd.DataFrame()

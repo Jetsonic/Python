@@ -110,11 +110,11 @@ def pso(func, lb, ub, ieqcons=[], f_ieqcons=None, args=(), kwargs={},
 		# Initialize the particle's position
 		x[i, :] = lb + x[i, :] * (ub - lb)
 
+		# Calculate the objective's value at the current particle's
+		fp[i] = obj(x[i, :])
+
 		# Initialize the particle's best known position
 		p[i, :] = x[i, :]
-
-		# Calculate the objective's value at the current particle's
-		fp[i] = obj(p[i, :])
 
 		# At the start, there may not be any feasible starting point, so just
 		# give it a temporary "best" point since it's likely to change
