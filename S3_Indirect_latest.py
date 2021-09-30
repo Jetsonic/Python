@@ -2,7 +2,7 @@ import time
 import pandas as pd
 import numpy as np
 from PSO_Algorithm import pso
-from data_pso_0_2013 import Interpolate, I3, Ex3, Tyear, Fyear, Days
+from data_pso_100_2003 import Interpolate, I3, Ex3, Tyear, Fyear, Days
 
 start_time = time.time()
 
@@ -49,18 +49,16 @@ for i in range(0, Tmonth + 1):
 
 def fitness(x):
 	F = 0
-	z_dry = 0
-	z_wet = 0
 	H3 = Height3(x)
 	Q3 = Storage3(x)[2]
 	for i in range(Tmonth):
+		z_dry = 0
+		z_wet = 0
 		if i % 12 == 0 or i % 12 == 1 or i % 12 == 2 or i % 12 == 3 or i % 12 == 4 or i % 12 == 11:
 			z_dry = 1 - (g * ita_S3 * Q3[i] * H3[i] / 1000) / power3
 		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
 			z_wet = 1 - (g * ita_S3 * Q3[i] * H3[i] / 1000) / power3
-		Total = z_dry + z_wet
-		z_dry = 0
-		z_wet = 0
+		Total = z_dry - z_wet
 		F = F + Total
 	return F
 
@@ -189,7 +187,7 @@ Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'm
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('S3.k.xlsx')
+PSO_Outputs = pd.ExcelWriter('S3.l.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs = pd.DataFrame()

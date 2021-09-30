@@ -316,7 +316,7 @@ def Storage2(x):
 		if j == 12:
 			j = 0
 	e2, e_MD, Q2, Q_MD, Sp2, p2, p_MD = E2(R2, R_MD, x)
-	return R2, R_MD, e2, e_MD, Q2, Q_MD, Sp2, p2, p_MD, ev2
+	return R2, e2, e_MD, Q2, Q_MD, Sp2, p2, p_MD, ev2
 
 
 """
@@ -415,7 +415,7 @@ print('    myfunc: {}'.format(fopt))
 print('The optimum releases for each stations are:')
 
 Storage_Sunkoshi_2 = xopt
-Release_Sunkoshi_2, Release_for_MD, Energy_Sunkoshi_2, Energy_MD, Discharge_for_Sunkoshi_2, Discharge_for_MD, Spill_for_Sunkoshi_2, Power_for_Sunkoshi_2, Power_for_MD, Evaporation_loss_S2 = Storage2(xopt)
+Release_Sunkoshi_2, Energy_Sunkoshi_2, Energy_MD, Discharge_for_Sunkoshi_2, Discharge_for_MD, Spill_for_Sunkoshi_2, Power_for_Sunkoshi_2, Power_for_MD, Evaporation_loss_S2 = Storage2(xopt)
 Storage_for_S2 = Storage_Sunkoshi_2[:-1]
 Elevation_for_Sunkoshi_2 = Height2(xopt) + S2_effective_twl
 Storage_Sunkoshi_2 = Storage_for_S2
@@ -432,7 +432,7 @@ Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'm
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('S2.k.xlsx')
+PSO_Outputs = pd.ExcelWriter('S2.l.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs = pd.DataFrame()
