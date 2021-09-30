@@ -1,8 +1,9 @@
 import time
+import random
 import pandas as pd
 import numpy as np
 from PSO_Algorithm import pso
-from data_pso_100_2003 import Interpolate, I3, Dmd_MD, Dmd_KD, Dk, l2, l1_, Ex2, Ex3, Exd, Ex1, Ex_Ko, Tyear, Fyear, Days, l_Ko, MDR
+from data_pso_0_2013 import Interpolate, I3, Dmd_MD, Dmd_KD, Dk, l2, l1_, Ex2, Ex3, Exd, Ex1, Ex_Ko, Tyear, Fyear, Days, l_Ko, MDR
 
 start_time = time.time()
 
@@ -51,11 +52,11 @@ start_time = time.time()
         If True, progress statements will be displayed every iteration
         (Default: False)
 """
-swarmsize = 8
+swarmsize = 50
 wmax = 1
 wmin = 0.3
-C1 = 1.5
-C2 = 1.5
+C1 = 1.7
+C2 = 1.7
 X = 1
 pem = 0.3
 maxiter = 1
@@ -201,8 +202,6 @@ power_KD = 61  # Installed Capacity in Megawatt of Sunkoshi-1 (from DOED report)
 H_KD = 99.27  # Sunkoshi Marine Diversion project Net Head in m (from DOED report)dam height 49
 S_KD_Max_discharge = 72  # Maximum release from Marine Diversion is taken as design discharge 72 m3/s
 
-global r1, r2, r3, rd
-
 """
    Environment
   ============
@@ -288,20 +287,20 @@ for i in range(0, T_O_V):
 # objective function maximizing power production
 def fitness(x):
 	F = 0
-	H3 = Height3(x[:Tmonth + 1])  # Calling function Height3(x) for sunkoshi 3 it returns storage water level - turbine level i.e. head for energy generation.
-	H2 = Height2(x[Tmonth + 1:2 * Tmonth + 2])
-	H_dt = Height_dt(x[3 * Tmonth + 3:4 * Tmonth + 4])
-	H_sk = Height_sk(x[3 * Tmonth + 3:4 * Tmonth + 4])
-	H1 = Height1(x[2 * Tmonth + 2:3 * Tmonth + 3])
-	H_Ko = Height_Ko(x[4 * Tmonth + 4:5 * Tmonth + 5])
-	Q3 = Storage3(x[:Tmonth + 1])[2]
-	Q2 = Storage2(x[Tmonth + 1:2 * Tmonth + 2])[3]
-	Q_MD = Storage2(x[Tmonth + 1:2 * Tmonth + 2])[4]
-	Q_sk = Storaged(x[3 * Tmonth + 3:4 * Tmonth + 4])[4]
-	Q_dt = Storaged(x[3 * Tmonth + 3:4 * Tmonth + 4])[3]
-	Q1 = Storage1(x[2 * Tmonth + 2:3 * Tmonth + 3])[2]
-	Q_Ko = Storage_Ko(x[4 * Tmonth + 4:5 * Tmonth + 5])[2]
-	Q_KD = Storage_Ko(x[4 * Tmonth + 4:5 * Tmonth + 5])[3]
+	H3 = Height3(x)  # Calling function Height3(x) for sunkoshi 3 it returns storage water level - turbine level i.e. head for energy generation.
+	H2 = Height2(x)
+	H_dt = Height_dt(x)
+	H_sk = Height_sk(x)
+	H1 = Height1(x)
+	H_Ko = Height_Ko(x)
+	Q3 = Storage3(x)[2]
+	Q2 = Storage2(x)[3]
+	Q_MD = Storage2(x)[4]
+	Q_sk = Storaged(x)[4]
+	Q_dt = Storaged(x)[3]
+	Q1 = Storage1(x)[2]
+	Q_Ko = Storage_Ko(x)[3]
+	Q_KD = Storage_Ko(x)[4]
 	for i in range(Tmonth):
 		z_dry = 0
 		z_wet = 0
@@ -422,17 +421,19 @@ def dry_energy(z_dry, z_wet):
 def Storage3(x):
 	R3 = np.zeros(Tmonth)
 	ev3 = []
-	S3 = x
+	S3 = x[:Tmonth + 1]
 	j = 0
 	for i in range(Tmonth):
 		Ev3 = Evaporation3(S3[i], j, i)
 		ev3.append(Ev3)
 		R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
+		while R3[i] < 0:
+			S3[i + 1] = random.uniform(S3min, S3max)
+			R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
 		j += 1
 		if j == 12:
 			j = 0
 	e3, Q3, Sp3, p1 = E3(R3, x)
-	r3 = R3
 	return R3, e3, Q3, Sp3, p1, ev3
 
 
@@ -440,14 +441,17 @@ def Storage3(x):
 def Storage2(x):
 	R2 = np.zeros(Tmonth)
 	R_MD = np.zeros(Tmonth)
-	R3 = r3
+	R3 = Storage3(x)[0]
 	ev2 = []
-	S2 = x
+	S2 = x[Tmonth + 1:2 * Tmonth + 2]
 	j = 0
 	for i in range(Tmonth):
 		Ev2 = Evaporation2(S2[i], j, i)
 		ev2.append(Ev2)
 		R2[i] = S2[i] - S2[i + 1] + R3[i] + l2[i] - Ev2
+		while R2[i] < 0:
+			S2[i + 1] = random.uniform(S2min, S2max)
+			R2[i] = S2[i] - S2[i + 1] + R3[i] + l2[i] - Ev2
 		if R2[i] > MDR[i]:
 			if R2[i] - MDR[i] > Dmd_MD[j]:
 				R_MD[i] = Dmd_MD[j]
@@ -457,7 +461,6 @@ def Storage2(x):
 		if j == 12:
 			j = 0
 	e2, e_MD, Q2, Q_MD, Sp2, p2, p_MD = E2(R2, R_MD, x)
-	r2 = R2
 	return R2, e2, e_MD, Q2, Q_MD, Sp2, p2, p_MD, ev2
 
 
@@ -467,12 +470,15 @@ def Storaged(x):
 	R_dt = np.zeros(Tmonth)  # initial overflow all values are zero
 	R_sk = np.zeros(Tmonth)
 	evd = []
-	Sd = x
+	Sd = x[3 * Tmonth + 3:4 * Tmonth + 4]
 	j = 0
 	for i in range(Tmonth):
 		Evd = Evaporationd(Sd[i], j, i)
 		evd.append(Evd)
 		Rd[i] = Sd[i] - Sd[i + 1] + Dk[i] - Evd
+		while Rd[i] < 0:
+			Sd[i + 1] = random.uniform(Sdmin, Sdmax)
+			Rd[i] = Sd[i] - Sd[i + 1] + Dk[i] - Evd
 		if Rd[i] > MDR[i]:
 			R_sk[i] = Rd[i] - MDR[i]
 			R_dt[i] = MDR[i]
@@ -483,25 +489,31 @@ def Storaged(x):
 		if j == 12:
 			j = 0
 	e_dt, e_sk, Q_dt, Q_sk, Sp_D, p_dt, p_sk = E_D(R_dt, R_sk, x)
-	rd = Sp_D
-	return Rd, e_dt, e_sk, Q_dt, Q_sk, Sp_D, p_dt, p_sk, evd
+	R_dt = Q_dt * (Days * 24 * 3600) / (10 ** 6)
+	R_sk = Q_sk * (Days * 24 * 3600) / (10 ** 6)
+	return Rd, e_dt, e_sk, Q_dt, Q_sk, Sp_D, p_dt, p_sk, evd, R_dt, R_sk
 
 
 # mass balance for sunkoshi 1
 def Storage1(x):
 	R1 = np.zeros(Tmonth)
 	ev1 = []
-	S1 = x
+	S1 = x[2 * Tmonth + 2:3 * Tmonth + 3]
+	Sp_D = Storaged(x)[5]
+	R_dt = Storaged(x)[9]
+	R2 = Storage2(x)[0]
 	j = 0
 	for i in range(Tmonth):
 		Ev1 = Evaporation1(S1[i], j, i)
 		ev1.append(Ev1)
-		R1[i] = S1[i] - S1[i + 1] + r2[i] + rd[i] + l1_[i] - Ev1
+		R1[i] = S1[i] - S1[i + 1] + R2[i] + Sp_D[i] + R_dt[i] + l1_[i] - Ev1
+		while R1[i] < 0:
+			S1[i + 1] = random.uniform(S1min, S1max)
+			R1[i] = S1[i] - S1[i + 1] + R2[i] + Sp_D[i] + R_dt[i] + l1_[i] - Ev1
 		j += 1
 		if j == 12:
 			j = 0
 	e1, Q1, Sp1, p1 = E1(R1, x)
-	r1 = R1
 	return R1, e1, Q1, Sp1, p1, ev1
 
 
@@ -510,14 +522,19 @@ def Storage_Ko(x):
 	R_Ko = np.zeros(Tmonth)
 	R_KD = np.zeros(Tmonth)
 	evKo = []
-	S_Ko = x
+	S_Ko = x[4 * Tmonth + 4:5 * Tmonth + 5]
+	R1 = Storage1(x)[0]
+	R_sk = Storaged(x)[10]
 	j = 0
 	for i in range(Tmonth):
 		Ev_Ko = EvaporationKo(S_Ko[i], j, i)
 		evKo.append(Ev_Ko)
-		R_Ko[i] = S_Ko[i] - S_Ko[i + 1] + l_Ko[i] + r1[i] - Ev_Ko
+		R_Ko[i] = S_Ko[i] - S_Ko[i + 1] + l_Ko[i] + R1[i] + R_sk[i] - Ev_Ko
+		while R_Ko[i] < 0:
+			S_Ko[i + 1] = random.uniform(S_Ko_min, S_Ko_max)
+			R_Ko[i] = S_Ko[i] - S_Ko[i + 1] + l_Ko[i] + R1[i] + R_sk[i] - Ev_Ko
 		if R_Ko[i] > MDR[i]:
-			if R_Ko[i] - MDR[i] > Dmd_KD[j]:
+			if (R_Ko[i] - MDR[i]) > Dmd_KD[j]:
 				R_KD[i] = Dmd_MD[j]
 			else:
 				R_KD[i] = R_Ko[i] - MDR[i]
@@ -591,7 +608,7 @@ def E1(R, x):
 # Energy output per month for Dudhkoshi
 def E_D(R_dt, R_sk, x):
 	e_dt = np.zeros(Tmonth)
-	e_sk = np.zeroes(Tmonth)
+	e_sk = np.zeros(Tmonth)
 	p_dt = np.zeros(Tmonth)
 	p_sk = np.zeros(Tmonth)
 	H_dt = Height_dt(x)
@@ -600,7 +617,7 @@ def E_D(R_dt, R_sk, x):
 	Q_sk_temp = (R_sk * 10 ** 6) / (Days * 24 * 3600)
 	Q_dt = np.zeros(Tmonth)
 	Q_sk = np.zeros(Tmonth)
-	Sp_D = np.zeroes(Tmonth)
+	Sp_D = np.zeros(Tmonth)
 	for i in range(Tmonth):
 		p_sk[i] = g * ita_sk * Q_sk_temp[i] * H_sk[i] / 1000 if (g * ita_sk * Q_sk_temp[i] * H_sk[i] / 1000) <= power_sk else power_sk
 		Q_sk[i] = (p_sk[i] / (g * ita_sk * H_sk[i]) * 1000)
@@ -634,6 +651,7 @@ def E_Ko(R, R_KD, x):
 		Sp_Ko[i] = ((R_Ko[i] - Q_KD[i] - Q_Ko[i]) * Days[i] * 24 * 3600) / 10 ** 6 if Q_Ko[i] < (R_Ko[i] - Q_KD[i]) else 0
 	return e_Ko, e_KD, Q_Ko, Q_KD, Sp_Ko, p_Ko, p_KD
 
+
 """
   Height
   =======
@@ -645,7 +663,7 @@ def E_Ko(R, R_KD, x):
 # Height for Sunkoshi-3
 def Height3(x):
 	H3 = np.zeros(Tmonth)  # initial Height all values are zero
-	S3 = x
+	S3 = x[:Tmonth + 1]
 	for i in range(Tmonth):
 		H3[i] = Interpolate(Ex3, (S3[i] + S3[i + 1]) / 2, c='Elev')
 		H3[i] = H3[i] - S3_effective_twl
@@ -655,7 +673,7 @@ def Height3(x):
 # Height for Sunkoshi-2
 def Height2(x):
 	H2 = np.zeros(Tmonth)
-	S2 = x
+	S2 = x[Tmonth + 1:2 * Tmonth + 2]
 	for i in range(Tmonth):
 		H2[i] = Interpolate(Ex2, (S2[i] + S2[i + 1]) / 2, c='Elev')
 		H2[i] = H2[i] - S2_effective_twl
@@ -665,7 +683,7 @@ def Height2(x):
 # Height for Sunkoshi-1
 def Height1(x):
 	H1 = np.zeros(Tmonth)
-	S1 = x
+	S1 = x[2 * Tmonth + 2:3 * Tmonth + 3]
 	for i in range(Tmonth):
 		H1[i] = Interpolate(Ex1, (S1[i] + S1[i + 1]) / 2, c='Elev')
 		H1[i] = H1[i] - S1_effective_twl
@@ -676,7 +694,7 @@ def Height1(x):
 #  Dam toe Powerhouse
 def Height_dt(x):
 	H_dt = np.zeros(Tmonth)
-	Sd = x
+	Sd = x[3 * Tmonth + 3:4 * Tmonth + 4]
 	for i in range(Tmonth):
 		H_dt[i] = Interpolate(Exd, (Sd[i] + Sd[i + 1]) / 2, c='Elev')
 		H_dt[i] = H_dt[i] - Dt_effective_twl
@@ -686,7 +704,7 @@ def Height_dt(x):
 #  Sunkoshi Powerhouse
 def Height_sk(x):
 	H_sk = np.zeros(Tmonth)
-	Sd = x
+	Sd = x[3 * Tmonth + 3:4 * Tmonth + 4]
 	for i in range(Tmonth):
 		H_sk[i] = Interpolate(Exd, (Sd[i] + Sd[i + 1]) / 2, c='Elev')
 		H_sk[i] = H_sk[i] - SK_effective_twl
@@ -696,7 +714,7 @@ def Height_sk(x):
 # Height for Sunkoshi-1
 def Height_Ko(x):
 	H_Ko = np.zeros(Tmonth)
-	S_Ko = x
+	S_Ko = x[4 * Tmonth + 4:5 * Tmonth + 5]
 	for i in range(Tmonth):
 		H_Ko[i] = Interpolate(Ex_Ko, (S_Ko[i] + S_Ko[i + 1]) / 2, c='Elev')
 		H_Ko[i] = H_Ko[i] - Ko_effective_twl
@@ -760,11 +778,11 @@ def EvaporationKo(a, b, d):
 # all constrains required
 def cons(x):
 	con = []
-	R3 = Storage3(x[:Tmonth + 1])[0]
-	R2 = Storage2(x[Tmonth + 1:2 * Tmonth + 2])[0]
-	Rd = Storaged(x[3 * Tmonth + 3:4 * Tmonth + 4])[0]
-	R1 = Storage1(x[2 * Tmonth + 2:3 * Tmonth + 3])[0]
-	R_Ko = Storage_Ko(x[4 * Tmonth + 4:5 * Tmonth + 5])[0]
+	R3 = Storage3(x)[0]
+	R2 = Storage2(x)[0]
+	Rd = Storaged(x)[0]
+	R1 = Storage1(x)[0]
+	R_Ko = Storage_Ko(x)[0]
 	for i in range(Tmonth):
 		con.append(R3[i])
 		con.append(R2[i])
@@ -775,7 +793,7 @@ def cons(x):
 
 
 # calling pso function in pso.py
-xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, swarmsize=swarmsize, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 """
   Printing and Saving Outputs
@@ -798,18 +816,17 @@ Storage_S1 = Storage_Sunkoshi_1[:-1]
 Storage_Saptakoshi_Ko = xopt[4 * Tmonth + 4:5 * Tmonth + 5]
 Storage_SKo = Storage_Saptakoshi_Ko[:-1]
 
-Outflow_Sunkoshi_3, Energy_Sunkoshi_3, Discharge_Sunkoshi_3, Spill_Sunkoshi_3, Power_Sunkoshi_3, Evaporation_loss_S3 = Storage3(xopt[:Tmonth + 1])
-Outflow_Sunkoshi_2, Energy_Sunkoshi_2, Energy_MD, Discharge_Sunkoshi_2, Discharge_MD, Spill_Sunkoshi_2, Power_Sunkoshi_2, Power_MD, Evaporation_loss_S2 = Storage2(xopt[Tmonth + 1:2 * Tmonth + 2])
-Outflow_Dudhkoshi, Energy_Dudhkoshi_dt, Energy_Dudhkoshi_sk, Discharge_Dudhkoshi_dt, Discharge_Dudhkoshi_sk, Spill_Dudhkoshi, Power_Dudhkoshi_dt, Power_Dudhkoshi_sk, Evaporation_loss_Dudhkoshi = Storaged(xopt[3 * Tmonth + 3:4 * Tmonth + 4])
-Outflow_Sunkoshi_1, Energy_Sunkoshi_1, Discharge_Sunkoshi_1, Spill_Sunkoshi_1, Power_Sunkoshi_1, Evaporation_loss_S1 = Storage1(xopt[2 * Tmonth + 2:3 * Tmonth + 3])
-Outflow_SaptaKoshi, Energy_SaptaKoshi, Energy_KD, Discharge_SaptaKoshi, Discharge_KD, Spill_SaptaKoshi, Power_SaptaKoshi, Power_KD, Evaporation_loss_SaptaKoshi = Storage_Ko(xopt[4 * Tmonth + 4:5 * Tmonth + 5])
+Outflow_Sunkoshi_3, Energy_Sunkoshi_3, Discharge_Sunkoshi_3, Spill_Sunkoshi_3, Power_Sunkoshi_3, Evaporation_loss_S3 = Storage3(xopt)
+Outflow_Sunkoshi_2, Energy_Sunkoshi_2, Energy_MD, Discharge_Sunkoshi_2, Discharge_MD, Spill_Sunkoshi_2, Power_Sunkoshi_2, Power_MD, Evaporation_loss_S2 = Storage2(xopt)
+Outflow_Dudhkoshi, Energy_Dudhkoshi_dt, Energy_Dudhkoshi_sk, Discharge_Dudhkoshi_dt, Discharge_Dudhkoshi_sk, Spill_Dudhkoshi, Power_Dudhkoshi_dt, Power_Dudhkoshi_sk, Evaporation_loss_Dudhkoshi, MCM_R_dt, MCM_R_sk = Storaged(xopt)
+Outflow_Sunkoshi_1, Energy_Sunkoshi_1, Discharge_Sunkoshi_1, Spill_Sunkoshi_1, Power_Sunkoshi_1, Evaporation_loss_S1 = Storage1(xopt)
+Outflow_SaptaKoshi, Energy_SaptaKoshi, Energy_KD, Discharge_SaptaKoshi, Discharge_KD, Spill_SaptaKoshi, Power_SaptaKoshi, Power_KD, Evaporation_loss_SaptaKoshi = Storage_Ko(xopt)
 
-Elevation_Sunkoshi_3 = Height3(xopt[:Tmonth + 1]) + S3_effective_twl
-Elevation_Sunkoshi_2 = Height2(xopt[Tmonth + 1:2 * Tmonth + 2]) + S2_effective_twl
-Elevation_DudhKoshi = Height_sk(xopt[3 * Tmonth + 3:4 * Tmonth + 4]) + SK_effective_twl
-Elevation_Sunkoshi_1 = Height1(xopt[2 * Tmonth + 2:3 * Tmonth + 3]) + S1_effective_twl
-Elevation_SaptaKoshi = Height_Ko(xopt[4 * Tmonth + 4:5 * Tmonth + 5]) + Ko_effective_twl
-
+Elevation_Sunkoshi_3 = Height3(xopt) + S3_effective_twl
+Elevation_Sunkoshi_2 = Height2(xopt) + S2_effective_twl
+Elevation_DudhKoshi = Height_sk(xopt) + SK_effective_twl
+Elevation_Sunkoshi_1 = Height1(xopt) + S1_effective_twl
+Elevation_SaptaKoshi = Height_Ko(xopt) + Ko_effective_twl
 
 Dry_energy_percent_for_S3_total = Dry_energy_checkT(Energy_Sunkoshi_3)
 Dry_energy_percent_for_S2_total = Dry_energy_checkT(Energy_Sunkoshi_2)
@@ -838,7 +855,7 @@ Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'm
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('All_2021-08-21.xlsx')
+PSO_Outputs = pd.ExcelWriter('test_all.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs_S3 = pd.DataFrame()
@@ -877,7 +894,6 @@ Outputs_S3['Discharge_for_Sunkoshi_3'] = Discharge_Sunkoshi_3
 Outputs_S3['Power_for_Sunkoshi_3'] = Power_Sunkoshi_3
 Outputs_S3['Energy_Sunkoshi_3'] = Energy_Sunkoshi_3
 
-
 Outputs_S2['Date'] = Date
 Outputs_S2['Month'] = Month
 Outputs_S2['Inflows_for_S2'] = l2 + Outflow_Sunkoshi_3
@@ -910,7 +926,7 @@ Outputs_Dk['Energy_Dudhkoshi_sk'] = Energy_Dudhkoshi_sk
 
 Outputs_S1['Date'] = Date
 Outputs_S1['Month'] = Month
-Outputs_S1['Inflows_for_S1'] = l1_ + Spill_Dudhkoshi + Outflow_Sunkoshi_2
+Outputs_S1['Inflows_for_S1'] = l1_ + Spill_Dudhkoshi + Outflow_Sunkoshi_2 + MCM_R_dt
 Outputs_S1['Outflow_Sunkoshi_1'] = Outflow_Sunkoshi_1
 Outputs_S1["Evaporation_loss_S1"] = Evaporation_loss_S1
 Outputs_S1['Storage_Sunkoshi_1'] = Storage_S1
@@ -920,37 +936,20 @@ Outputs_S1['Discharge_for_Sunkoshi_1'] = Discharge_Sunkoshi_1
 Outputs_S1['Power_for_Sunkoshi_1'] = Power_Sunkoshi_1
 Outputs_S1['Energy_Sunkoshi_1'] = Energy_Sunkoshi_1
 
-
-Outputs_S2['Date'] = Date
-Outputs_S2['Month'] = Month
-Outputs_S2['Inflows_for_S2'] = l2 + Outflow_Sunkoshi_3
-Outputs_S2['Outflow_Sunkoshi_2'] = Outflow_Sunkoshi_2
-Outputs_S2["Evaporation_loss_S2"] = Evaporation_loss_S2
-Outputs_S2['Storage_Sunkoshi_2'] = Storage_S2
-Outputs_S2['Elevation_Sunkoshi_2'] = Elevation_Sunkoshi_2
-Outputs_S2['Spill_for_Sunkoshi_2'] = Spill_Sunkoshi_2
-Outputs_S2['Discharge_for_Sunkoshi_2'] = Discharge_Sunkoshi_2
-Outputs_S2['Power_for_Sunkoshi_2'] = Power_Sunkoshi_2
-Outputs_S2['Energy_Sunkoshi_2'] = Energy_Sunkoshi_2
-Outputs_S2['Discharge_for_Sunkoshi_MD'] = Discharge_MD
-Outputs_S2['Power_for_Sunkoshi_MD'] = Power_MD
-Outputs_S2['Energy_Sunkoshi_MD'] = Energy_MD
-
 Outputs_Ko['Date'] = Date
 Outputs_Ko['Month'] = Month
-Outputs_Ko['Inflows_for_Ko'] = l_Ko + Outflow_Sunkoshi_1
+Outputs_Ko['Inflows_for_Ko'] = l_Ko + Outflow_Sunkoshi_1 + MCM_R_sk
 Outputs_Ko['Outflow_Saptakoshi'] = Outflow_SaptaKoshi
 Outputs_Ko["Evaporation_loss_Saptakoshi"] = Evaporation_loss_SaptaKoshi
 Outputs_Ko['Storage_Saptakoshi'] = Storage_SKo
 Outputs_Ko['Elevation_Saptakoshi'] = Elevation_SaptaKoshi
-Outputs_S3['Spill_for_Saptakoshi'] = Spill_SaptaKoshi
-Outputs_S3['Discharge_for_Saptakoshi'] = Discharge_SaptaKoshi
-Outputs_S3['Power_for_Saptakoshi'] = Power_SaptaKoshi
+Outputs_Ko['Spill_for_Saptakoshi'] = Spill_SaptaKoshi
+Outputs_Ko['Discharge_for_Saptakoshi'] = Discharge_SaptaKoshi
+Outputs_Ko['Power_for_Saptakoshi'] = Power_SaptaKoshi
 Outputs_Ko['Energy_Saptakoshi'] = Energy_SaptaKoshi
 Outputs_Ko['Discharge_for_Sunkoshi_KD'] = Discharge_KD
 Outputs_Ko['Power_for_Sunkoshi_KD'] = Power_KD
 Outputs_Ko['Energy_Sunkoshi_KD'] = Energy_KD
-
 
 Day_energy_percent_A['Date'] = Date1
 Day_energy_percent_A['Dry Energy percent S3'] = Dry_energy_percent_for_S3_Annually
@@ -963,11 +962,11 @@ Day_energy_percent_A['Dry Energy percent Ko'] = Dry_energy_percent_for_Ko_Annual
 Day_energy_percent_A['Dry Energy percent KD'] = Dry_energy_percent_for_KD_Annually
 
 Parameters.to_excel(PSO_Outputs, sheet_name='Parameters', index=False)
-Outputs_S3.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
-Outputs_S2.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
-Outputs_S1.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
-Outputs_Dk.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
-Outputs_Ko.to_excel(PSO_Outputs, sheet_name='Outputs', index=False)
+Outputs_S3.to_excel(PSO_Outputs, sheet_name='Outputs_S3', index=False)
+Outputs_S2.to_excel(PSO_Outputs, sheet_name='Outputs_S2', index=False)
+Outputs_S1.to_excel(PSO_Outputs, sheet_name='Outputs_S1', index=False)
+Outputs_Dk.to_excel(PSO_Outputs, sheet_name='Outputs_Dk', index=False)
+Outputs_Ko.to_excel(PSO_Outputs, sheet_name='Outputs_Ko', index=False)
 pso_data1.to_excel(PSO_Outputs, sheet_name='iter_vs_swamp_vs_fitness', index=False)
 pso_data2.to_excel(PSO_Outputs, sheet_name='iter_vs_Global_best_fitness', index=False)
 Day_energy_percent_A.to_excel(PSO_Outputs, sheet_name='Dry_Energy', index=False)

@@ -1,3 +1,4 @@
+import random
 import time
 import pandas as pd
 import numpy as np
@@ -58,7 +59,7 @@ def fitness(x):
 			z_dry = 1 - (g * ita_S3 * Q3[i] * H3[i] / 1000) / power3
 		elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
 			z_wet = 1 - (g * ita_S3 * Q3[i] * H3[i] / 1000) / power3
-		Total = z_dry - z_wet
+		Total = z_dry + z_wet
 		F = F + Total
 	return F
 
@@ -111,6 +112,9 @@ def Storage3(x):
 		Ev3 = Evaporation3(S3[i], j, i)
 		ev3.append(Ev3)
 		R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
+		while R3[i] < 0:
+			S3[i+1] = random.uniform(S3min, S3max)
+			R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
 		j += 1
 		if j == 12:
 			j = 0
@@ -157,7 +161,7 @@ def cons(x):
 	return con
 
 
-xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 """
   Printing and Saving Outputs
