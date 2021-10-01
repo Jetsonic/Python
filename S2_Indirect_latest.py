@@ -183,9 +183,9 @@ for i in range(0, Tmonth + 1):
 # objective function maximizing power production
 def fitness(x):
 	F = 0
+	Q2 = Storage2(x)[3]
+	Q_MD = Storage2(x)[4]
 	H2 = Height2(x)
-	Q2 = Storage2(x)[4]
-	Q_MD = Storage2(x)[5]
 	for i in range(Tmonth):
 		z_dry = 0
 		z_wet = 0

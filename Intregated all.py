@@ -3,7 +3,9 @@ import random
 import pandas as pd
 import numpy as np
 from PSO_Algorithm import pso
-from data_pso_0_2013 import Interpolate, I3, Dmd_MD, Dmd_KD, Dk, l2, l1_, Ex2, Ex3, Exd, Ex1, Ex_Ko, Tyear, Fyear, Days, l_Ko, MDR
+from data_pso_100_2003 import Interpolate, I3, Dmd_MD, Dmd_KD, Dk, l2, l1_, Ex2, Ex3, Exd, Ex1, Ex_Ko, Tyear, Fyear, Days, l_Ko, MDR
+
+PSO_Outputs = pd.ExcelWriter('100_2003_c-1.xlsx')
 
 start_time = time.time()
 
@@ -52,11 +54,11 @@ start_time = time.time()
         If True, progress statements will be displayed every iteration
         (Default: False)
 """
-swarmsize = 50
+swarmsize = 8
 wmax = 1
-wmin = 0.3
-C1 = 1.7
-C2 = 1.7
+wmin = 1
+C1 = 1
+C2 = 0.5
 X = 1
 pem = 0.3
 maxiter = 1
@@ -249,18 +251,38 @@ for i in range(0, T_O_V):
 	if i in range(0, Tmonth + 1):
 		ub[i] = S3max
 		lb[i] = S3min
+	#	ub[0] = S3max
+	#	lb[0] = S3max
+	#	ub[Tmonth] = S3max
+	#	lb[Tmonth] = S3max
 	elif i in range(Tmonth + 1, 2 * Tmonth + 2):
 		ub[i] = S2max
 		lb[i] = S2min
+	#	ub[Tmonth + 1] = S2max
+	#	lb[Tmonth + 1] = S2max
+	#	ub[2 * Tmonth + 1] = S2max
+	#	lb[2 * Tmonth + 1] = S2max
 	elif i in range(2 * Tmonth + 2, 3 * Tmonth + 3):
 		ub[i] = S1max
 		lb[i] = S1min
+	#	ub[2 * Tmonth + 2] = S1max
+	#	lb[2 * Tmonth + 2] = S1max
+	#	ub[3 * Tmonth + 2] = S1max
+	#	lb[3 * Tmonth + 2] = S1max
 	elif i in range(3 * Tmonth + 3, 4 * Tmonth + 4):
 		ub[i] = Sdmax
 		lb[i] = Sdmin
+	#	ub[3 * Tmonth + 3] = Sdmax
+	#	lb[3 * Tmonth + 3] = Sdmax
+	#	ub[4 * Tmonth + 3] = Sdmax
+	#	lb[4 * Tmonth + 3] = Sdmax
 	elif i in range(4 * Tmonth + 4, 5 * Tmonth + 5):
 		ub[i] = S_Ko_max
 		lb[i] = S_Ko_min
+#	ub[4 * Tmonth + 4] = S_Ko_max
+#	lb[4 * Tmonth + 4] = S_Ko_max
+#	ub[5 * Tmonth + 4] = S_Ko_max
+#	lb[5 * Tmonth + 4] = S_Ko_max
 """
   Objective function
   ===================
@@ -287,12 +309,6 @@ for i in range(0, T_O_V):
 # objective function maximizing power production
 def fitness(x):
 	F = 0
-	H3 = Height3(x)  # Calling function Height3(x) for sunkoshi 3 it returns storage water level - turbine level i.e. head for energy generation.
-	H2 = Height2(x)
-	H_dt = Height_dt(x)
-	H_sk = Height_sk(x)
-	H1 = Height1(x)
-	H_Ko = Height_Ko(x)
 	Q3 = Storage3(x)[2]
 	Q2 = Storage2(x)[3]
 	Q_MD = Storage2(x)[4]
@@ -301,6 +317,12 @@ def fitness(x):
 	Q1 = Storage1(x)[2]
 	Q_Ko = Storage_Ko(x)[3]
 	Q_KD = Storage_Ko(x)[4]
+	H3 = Height3(x)  # Calling function Height3(x) for sunkoshi 3 it returns storage water level - turbine level i.e. head for energy generation.
+	H2 = Height2(x)
+	H_dt = Height_dt(x)
+	H_sk = Height_sk(x)
+	H1 = Height1(x)
+	H_Ko = Height_Ko(x)
 	for i in range(Tmonth):
 		z_dry = 0
 		z_wet = 0
@@ -542,6 +564,13 @@ def Storage_Ko(x):
 		if j == 12:
 			j = 0
 	e_Ko, e_KD, Q_Ko, Q_KD, Sp_Ko, p_Ko, p_KD = E_Ko(R_Ko, R_KD, x)
+	for i in range(Tmonth):
+		if Sp_Ko[i] > 0.1:
+			if S_Ko[i + 1] < S_Ko_max:
+				k = S_Ko[i + 1]
+				d = S_Ko[i + 1] + Sp_Ko[i]
+				S_Ko[i + 1] = S_Ko[i + 1] + Sp_Ko[i] if d <= S_Ko_max else S_Ko_max
+				Sp_Ko[i] = S_Ko[i + 1] - k + Sp_Ko[i]
 	return R_Ko, e_Ko, e_KD, Q_Ko, Q_KD, Sp_Ko, p_Ko, p_KD, evKo
 
 
@@ -855,7 +884,6 @@ Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'm
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('test_all.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs_S3 = pd.DataFrame()
@@ -912,11 +940,11 @@ Outputs_S2['Energy_Sunkoshi_MD'] = Energy_MD
 Outputs_Dk['Date'] = Date
 Outputs_Dk['Month'] = Month
 Outputs_Dk['Inflows_for_S2'] = Dk
-Outputs_Dk['Outflow_Sunkoshi_2'] = Outflow_Dudhkoshi
-Outputs_Dk["Evaporation_loss_S2"] = Evaporation_loss_Dudhkoshi
-Outputs_Dk['Storage_Sunkoshi_2'] = Storage_Dk
-Outputs_Dk['Elevation_Sunkoshi_2'] = Elevation_DudhKoshi
-Outputs_Dk['Spill_for_Sunkoshi_2'] = Spill_Dudhkoshi
+Outputs_Dk['Outflow_Dudhkoshi'] = Outflow_Dudhkoshi
+Outputs_Dk["Evaporation_loss_Dudhkoshi"] = Evaporation_loss_Dudhkoshi
+Outputs_Dk['Storage_Dudhkoshi'] = Storage_Dk
+Outputs_Dk['Elevation_Dudhkoshi'] = Elevation_DudhKoshi
+Outputs_Dk['Spill_for_Dudhkoshi'] = Spill_Dudhkoshi
 Outputs_Dk['Discharge_for_Dudhkoshi_dt'] = Discharge_Dudhkoshi_dt
 Outputs_Dk['Discharge_for_Dudhkoshi_sk'] = Discharge_Dudhkoshi_sk
 Outputs_Dk['Power_for_Dudhkoshi_dt'] = Power_Dudhkoshi_dt

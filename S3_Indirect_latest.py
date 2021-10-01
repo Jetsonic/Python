@@ -3,18 +3,18 @@ import time
 import pandas as pd
 import numpy as np
 from PSO_Algorithm import pso
-from data_pso_100_2003 import Interpolate, I3, Ex3, Tyear, Fyear, Days
+from data_pso import Interpolate, I3, Ex3, Tyear, Fyear, Days
 
 start_time = time.time()
 
-swarmsize = 50
+swarmsize = 100
 wmax = 1
 wmin = 1
-C1 = 1.7
-C2 = 1.7
+C1 = 1
+C2 = 0.5
 X = 0.9
 pem = 0.3
-maxiter = 50
+maxiter = 100
 minstep = 1e-8
 minfunc = 1e-8
 
@@ -112,9 +112,9 @@ def Storage3(x):
 		Ev3 = Evaporation3(S3[i], j, i)
 		ev3.append(Ev3)
 		R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
-		while R3[i] < 0:
-			S3[i+1] = random.uniform(S3min, S3max)
-			R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
+		#while R3[i] < 0:
+		#	S3[i+1] = random.uniform(S3min, S3max)
+		#	R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
 		j += 1
 		if j == 12:
 			j = 0
@@ -161,7 +161,7 @@ def cons(x):
 	return con
 
 
-xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+xopt, fopt, iter_vs_swamp_vs_fitness, iter_vs_globalbest = pso(fitness, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 """
   Printing and Saving Outputs
@@ -191,7 +191,7 @@ Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'm
  =================
  Here,writing the output obtained to excel file PSO_Outputs.xlsx
 '''
-PSO_Outputs = pd.ExcelWriter('S3.l.xlsx')
+PSO_Outputs = pd.ExcelWriter('S3_indirect.xlsx')
 
 Parameters = pd.DataFrame()
 Outputs = pd.DataFrame()
