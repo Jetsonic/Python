@@ -3,9 +3,9 @@ import random
 import pandas as pd
 import numpy as np
 from PSO_Algorithm import pso
-from data_pso_100_2003 import Interpolate, I3, Dmd_MD, Dmd_KD, Dk, l2, l1_, Ex2, Ex3, Exd, Ex1, Ex_Ko, Tyear, Fyear, Days, l_Ko, MDR
+from data_pso import Interpolate, I3, Dmd_MD, Dmd_KD, Dk, l2, l1_, Ex2, Ex3, Exd, Ex1, Ex_Ko, Tyear, Fyear, Days, l_Ko, MDR
 
-PSO_Outputs = pd.ExcelWriter('100_2003_c-1.xlsx')
+PSO_Outputs = pd.ExcelWriter('All(1985-2014)_d+0.5w_integrated.xlsx')
 
 start_time = time.time()
 
@@ -236,6 +236,11 @@ T_O_V = Tmonth * Ovariables + Ovariables
 lb = np.zeros(T_O_V)
 ub = np.zeros(T_O_V)
 
+Setup = pd.DataFrame()
+verbose = ["Integrated code for Maximizing dry+0.5w energy for all stations"]
+Setup['Setup'] = verbose
+Setup.to_excel(PSO_Outputs, sheet_name='Setup', index=False)
+
 # Giving upper and lower value for pso search function,here limit on irrigation and release output can de defined.
 """
   ub-lb Section
@@ -354,7 +359,7 @@ def fitness(x):
 			p_Ko_wet = p_Ko
 			p_KD_wet = p_KD
 			z_wet = (1 - (p3_wet / power3)) + (1 - (p2_wet / power2)) + (1 - (p_MD_wet / power_MD)) + (1 - (p1_wet / power1)) + (1 - (p_dt_wet / power_dt)) + (1 - (p_sk_wet / power_sk)) + (1 - (p_Ko_wet / power_Ko)) + (1 - (p_KD_wet / power_KD))
-		Total = z_dry + z_wet
+		Total = z_dry + 0.5*z_wet
 		F = F + Total
 	return F
 
@@ -564,13 +569,6 @@ def Storage_Ko(x):
 		if j == 12:
 			j = 0
 	e_Ko, e_KD, Q_Ko, Q_KD, Sp_Ko, p_Ko, p_KD = E_Ko(R_Ko, R_KD, x)
-	for i in range(Tmonth):
-		if Sp_Ko[i] > 0.1:
-			if S_Ko[i + 1] < S_Ko_max:
-				k = S_Ko[i + 1]
-				d = S_Ko[i + 1] + Sp_Ko[i]
-				S_Ko[i + 1] = S_Ko[i + 1] + Sp_Ko[i] if d <= S_Ko_max else S_Ko_max
-				Sp_Ko[i] = S_Ko[i + 1] - k + Sp_Ko[i]
 	return R_Ko, e_Ko, e_KD, Q_Ko, Q_KD, Sp_Ko, p_Ko, p_KD, evKo
 
 

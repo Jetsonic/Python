@@ -5,7 +5,7 @@ import numpy as np
 from PSO_Algorithm import pso
 from data_pso import Interpolate, I3, Dmd_MD, Dmd_KD, Dk, l2, l1_, Ex2, Ex3, Exd, Ex1, Ex_Ko, Tyear, Fyear, Days, l_Ko, MDR
 
-PSO_Outputs = pd.ExcelWriter('test.wc.xlsx')
+PSO_Outputs = pd.ExcelWriter('All_2021-10-2_d+0.5w_nc.xlsx')
 
 start_time = time.time()
 
@@ -287,6 +287,11 @@ def dry_energy(z_dry, z_wet):
 	return dry_percent_total
 
 
+Setup = pd.DataFrame()
+verbose = ["Maximizing dry+0.5w energy for all stations with no constrains"]
+Setup['Setup'] = verbose
+Setup.to_excel(PSO_Outputs, sheet_name='Setup', index=False)
+
 Parameters = pd.DataFrame()
 Inputs = ['swarmsize', 'wmax', 'wmin', 'C1', 'C2', 'X', 'maxiter', 'minstep', 'minfunc', 'Fitness_value_S3', 'Fitness_value_S2', 'Fitness_value_S1', 'Fitness_value_Dk', 'Fitness_value_Ko', 'Dry_energy percent Total for S3', 'Dry_energy percent Total for S2', 'Dry_energy percent Total for S1', 'Dry_energy percent Total for SK PH', 'Dry_energy percent Total for DT PH', 'Dry_energy percent Total for MD', 'Dry_energy percent Total for Ko', 'Dry_energy percent Total for KD']
 Parameters['Parameters'] = Inputs
@@ -318,7 +323,7 @@ for St in range(0, Ovariables):
 					z_dry = 1 - (g * ita_S3 * Q3[i] * H3[i] / 1000) / power3
 				elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
 					z_wet = 1 - (g * ita_S3 * Q3[i] * H3[i] / 1000) / power3
-				Total = z_dry + z_wet
+				Total = z_dry + 0.5 * z_wet
 				F = F + Total
 			return F
 
@@ -332,9 +337,9 @@ for St in range(0, Ovariables):
 				Ev3 = Evaporation3(S3[i], j, i)
 				ev3.append(Ev3)
 				R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
-				#while R3[i] < 0:
-				#	S3[i + 1] = random.uniform(S3min, S3max)
-				#	R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
+				while R3[i] < 0:
+					S3[i + 1] = random.uniform(S3min, S3max)
+					R3[i] = S3[i] - S3[i + 1] + I3[i] - Ev3
 				j += 1
 				if j == 12:
 					j = 0
@@ -355,6 +360,7 @@ for St in range(0, Ovariables):
 				Q3[i] = (p3[i] / (g * ita_S3 * H3[i]) * 1000)
 				Sp3[i] = ((R3[i] - Q3[i]) * Days[i] * 24 * 3600) / 10 ** 6 if Q3[i] <= R3[i] else 0
 			return e3, Q3, Sp3, p3
+
 
 		# Height for Sunkoshi-3
 		def Height3(x):
@@ -380,7 +386,7 @@ for St in range(0, Ovariables):
 			return con
 
 
-		xopt_S3, fopt_S3, iter_vs_swamp_vs_fitness_S3, iter_vs_globalbest_S3 = pso(fitness_S3, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+		xopt_S3, fopt_S3, iter_vs_swamp_vs_fitness_S3, iter_vs_globalbest_S3 = pso(fitness_S3, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 		print('Optimal fitness function value:')
 		print('    myfunc: {}'.format(fopt_S3))
@@ -440,7 +446,7 @@ for St in range(0, Ovariables):
 					p_wet = p
 					p_MD_wet = (g * ita_MD * Q_MD[i] * H_MD) / 1000
 					z_wet = (1 - (p_wet / power2)) + (1 - (p_MD_wet / power_MD))
-				Total = z_dry + z_wet
+				Total = z_dry + 0.5 * z_wet
 				F = F + Total
 			return F
 
@@ -455,9 +461,9 @@ for St in range(0, Ovariables):
 				Ev2 = Evaporation2(S2[i], j, i)
 				ev2.append(Ev2)
 				R2[i] = S2[i] - S2[i + 1] + Outflow_Sunkoshi_3[i] + l2[i] - Ev2
-			#	while R2[i] < 0:
-			#		S2[i + 1] = random.uniform(S2min, S2max)
-			#		R2[i] = R2[i] = S2[i] - S2[i + 1] + Outflow_Sunkoshi_3[i] + l2[i] - Ev2
+				while R2[i] < 0:
+					S2[i + 1] = random.uniform(S2min, S2max)
+					R2[i] = R2[i] = S2[i] - S2[i + 1] + Outflow_Sunkoshi_3[i] + l2[i] - Ev2
 				if R2[i] > MDR[i]:
 					if R2[i] - MDR[i] > Dmd_MD[j]:
 						R_MD[i] = Dmd_MD[j]
@@ -514,7 +520,7 @@ for St in range(0, Ovariables):
 			return con
 
 
-		xopt_S2, fopt_S2, iter_vs_swamp_vs_fitness_S2, iter_vs_globalbest_S2 = pso(fitness_S2, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+		xopt_S2, fopt_S2, iter_vs_swamp_vs_fitness_S2, iter_vs_globalbest_S2 = pso(fitness_S2, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 		print('Optimal fitness function value:')
 		print('    myfunc: {}'.format(fopt_S2))
@@ -581,7 +587,7 @@ for St in range(0, Ovariables):
 					p_dt_wet = p_dt
 					p_sk_wet = p_sk
 					z_wet = (1 - (p_dt_wet / power_dt)) + (1 - (p_sk_wet / power_sk))
-				Total = z_dry + z_wet
+				Total = z_dry + 0.5 * z_wet
 				F = F + Total
 			return F
 
@@ -597,9 +603,9 @@ for St in range(0, Ovariables):
 				Evd = Evaporationd(Sd[i], j, i)
 				evd.append(Evd)
 				Rd[i] = Sd[i] - Sd[i + 1] + Dk[i] - Evd
-				#while Rd[i] < 0:
-				#	Sd[i + 1] = random.uniform(Sdmin, Sdmax)
-				#	Rd[i] = Sd[i] - Sd[i + 1] + Dk[i] - Evd
+				while Rd[i] < 0:
+					Sd[i + 1] = random.uniform(Sdmin, Sdmax)
+					Rd[i] = Sd[i] - Sd[i + 1] + Dk[i] - Evd
 				if Rd[i] > MDR[i]:
 					R_sk[i] = Rd[i] - MDR[i]
 					R_dt[i] = MDR[i]
@@ -674,7 +680,7 @@ for St in range(0, Ovariables):
 			return con
 
 
-		xopt_Dk, fopt_Dk, iter_vs_swamp_vs_fitness_Dk, iter_vs_globalbest_Dk = pso(fitness_Dk, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+		xopt_Dk, fopt_Dk, iter_vs_swamp_vs_fitness_Dk, iter_vs_globalbest_Dk = pso(fitness_Dk, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 		print('Optimal fitness function value:')
 		print('    myfunc: {}'.format(fopt_Dk))
@@ -737,7 +743,7 @@ for St in range(0, Ovariables):
 				elif i % 12 == 5 or i % 12 == 6 or i % 12 == 7 or i % 12 == 8 or i % 12 == 9 or i % 12 == 10:
 					p1_wet = p1
 					z_wet = (1 - (p1_wet / power1))
-				Total = z_dry + z_wet
+				Total = z_dry + 0.5 * z_wet
 				F = F + Total
 			return F
 
@@ -751,9 +757,9 @@ for St in range(0, Ovariables):
 				Ev1 = Evaporation1(S1[i], j, i)
 				ev1.append(Ev1)
 				R1[i] = S1[i] - S1[i + 1] + Outflow_Sunkoshi_2[i] + Spill_Dudhkoshi[i] + MCM_R_dt[i] + l1_[i] - Ev1
-				#while R1[i] < 0:
-				#	S1[i + 1] = random.uniform(S1min, S1max)
-				#	R1[i] = S1[i] - S1[i + 1] + Outflow_Sunkoshi_2[i] + Spill_Dudhkoshi[i] + MCM_R_dt[i] + l1_[i] - Ev1
+				while R1[i] < 0:
+					S1[i + 1] = random.uniform(S1min, S1max)
+					R1[i] = S1[i] - S1[i + 1] + Outflow_Sunkoshi_2[i] + Spill_Dudhkoshi[i] + MCM_R_dt[i] + l1_[i] - Ev1
 				j += 1
 				if j == 12:
 					j = 0
@@ -799,7 +805,7 @@ for St in range(0, Ovariables):
 			return con
 
 
-		xopt_S1, fopt_S1, iter_vs_swamp_vs_fitness_S1, iter_vs_globalbest_S1 = pso(fitness_S1, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+		xopt_S1, fopt_S1, iter_vs_swamp_vs_fitness_S1, iter_vs_globalbest_S1 = pso(fitness_S1, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 		print('Optimal fitness function value:')
 		print('    myfunc: {}'.format(fopt_S1))
@@ -859,7 +865,7 @@ for St in range(0, Ovariables):
 					p_Ko_wet = p_Ko
 					p_KD_wet = p_KD
 					z_wet = (1 - (p_Ko_wet / power_Ko)) + (1 - (p_KD_wet / power_KD))
-				Total = z_dry + z_wet
+				Total = z_dry + 0.5 * z_wet
 				F = F + Total
 			return F
 
@@ -874,9 +880,9 @@ for St in range(0, Ovariables):
 				Ev_Ko = EvaporationKo(S_Ko[i], j, i)
 				evKo.append(Ev_Ko)
 				R_Ko[i] = S_Ko[i] - S_Ko[i + 1] + l_Ko[i] + Outflow_Sunkoshi_1[i] + MCM_R_sk[i] - Ev_Ko
-			#	while R_Ko[i] < 0:
-			#		S_Ko[i + 1] = random.uniform(S_Ko_min, S_Ko_max)
-			#		R_Ko[i] = S_Ko[i] - S_Ko[i + 1] + l_Ko[i] + Outflow_Sunkoshi_1[i] + MCM_R_sk[i] - Ev_Ko
+				while R_Ko[i] < 0:
+					S_Ko[i + 1] = random.uniform(S_Ko_min, S_Ko_max)
+					R_Ko[i] = S_Ko[i] - S_Ko[i + 1] + l_Ko[i] + Outflow_Sunkoshi_1[i] + MCM_R_sk[i] - Ev_Ko
 				if R_Ko[i] > MDR[i]:
 					if (R_Ko[i] - MDR[i]) > Dmd_KD[j]:
 						R_KD[i] = Dmd_MD[j]
@@ -932,7 +938,7 @@ for St in range(0, Ovariables):
 			return con
 
 
-		xopt_Ko, fopt_Ko, iter_vs_swamp_vs_fitness_Ko, iter_vs_globalbest_Ko = pso(fitness_Ko, lb, ub, f_ieqcons=cons, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
+		xopt_Ko, fopt_Ko, iter_vs_swamp_vs_fitness_Ko, iter_vs_globalbest_Ko = pso(fitness_Ko, lb, ub, swarmsize=swarmsize, pem=pem, wmax=wmax, wmin=wmin, c1=C1, c2=C2, X=X, maxiter=maxiter, minstep=minstep, minfunc=minfunc, debug=False)
 
 		print('Optimal fitness function value:')
 		print('    myfunc: {}'.format(fopt_Ko))
